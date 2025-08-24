@@ -1,68 +1,61 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0a1026" />
-<title>Sign in — AI Dream Translator</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1026" />
+  <title>Sign in — AI Dream Translator</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="bg"><div class="stars"></div><div class="glow"></div></div>
-<nav class="nav"><div class="wrap nav-in">
-<a class="brand" href="/"><span class="logo"></span><span>AI Dream Translator</span></a>
-<div class="nav-links">
-<a href="/">Home</a>
-<a href="pricing.html">Pricing</a>
-<a href="contact.html">Contact</a>
-<a class="active" href="signin.html">Sign in</a>
-</div>
-</div></nav>
+  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
+  <nav class="nav"><div class="wrap nav-in">
+    <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html">Contact</a>
+      <a class="active" href="signin.html">Sign in</a>
+    </div>
+  </div></nav>
 
+  <header class="wrap hero center">
+    <h1 class="h1">Welcome back</h1>
+    <p class="lead">Sign in to your account or create a new one.</p>
+  </header>
 
-<header class="wrap hero center">
-<h1 class="h1">Welcome back</h1>
-<p class="lead">Sign in to your account or create a new one.</p>
-</header>
+  <main class="wrap grid two">
+    <section class="card">
+      <h2>Sign in</h2>
+      <label class="label" for="si-email">Email</label>
+      <input class="input" id="si-email" type="email" placeholder="you@example.com" />
+      <label class="label mt" for="si-pass">Password</label>
+      <input class="input" id="si-pass" type="password" placeholder="••••••••" />
+      <div class="row mt2">
+        <button class="btn primary" onclick="alert('Demo only — backend coming soon')">Sign in</button>
+        <a class="btn ghost" href="#">Forgot password?</a>
+      </div>
+    </section>
 
+    <section class="card" id="signup">
+      <h2>Create account</h2>
+      <label class="label" for="su-name">Full name</label>
+      <input class="input" id="su-name" type="text" placeholder="Your name" />
 
-<main class="wrap grid two">
-<section class="card">
-<h2>Sign in</h2>
-<label class="label" for="si-email">Email</label>
-<input class="input" id="si-email" type="email" placeholder="you@example.com" />
-<label class="label mt" for="si-pass">Password</label>
-<input class="input" id="si-pass" type="password" placeholder="••••••••" />
-<div class="row mt2">
-<button class="btn primary" onclick="alert('Demo only — backend coming soon')">Sign in</button>
-<a class="btn ghost" href="#">Forgot password?</a>
-</div>
-</section>
+      <label class="label mt" for="su-email">Email</label>
+      <input class="input" id="su-email" type="email" placeholder="you@example.com" />
 
+      <label class="label mt" for="su-pass">Password</label>
+      <input class="input" id="su-pass" type="password" placeholder="Create a password" />
 
-<section class="card" id="signup">
-<h2>Create account</h2>
-<label class="label" for="su-name">Full name</label>
-<input class="input" id="su-name" type="text" placeholder="Your name" />
+      <div class="row mt2">
+        <button class="btn primary" onclick="alert('Demo only — backend coming soon')">Create account</button>
+        <a class="btn ghost" href="pricing.html">See plans</a>
+      </div>
+    </section>
+  </main>
 
-
-<label class="label mt" for="su-email">Email</label>
-<input class="input" id="su-email" type="email" placeholder="you@example.com" />
-
-
-<label class="label mt" for="su-pass">Password</label>
-<input class="input" id="su-pass" type="password" placeholder="Create a password" />
-
-
-<div class="row mt2">
-<button class="btn primary" onclick="alert('Demo only — backend coming soon')">Create account</button>
-<a class="btn ghost" href="pricing.html">See plans</a>
-</div>
-</section>
-</main>
-
-
-<footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
-<script src="app.js" defer></script>
+  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+  <script src="app.js" defer></script>
 </body>
 </html>
