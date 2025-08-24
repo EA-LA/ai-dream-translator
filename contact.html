@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — Elham Amini</title>
+  <meta name="description" content="Contact Elham Amini — business inquiries, collaborations, and strategy calls." />
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="index.html">Elham Amini</a>
+    <nav class="menu">
+      <a href="index.html#about">About</a>
+      <a href="index.html#services">Services</a>
+      <a href="pricing.html">Pricing</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="contact-wrap">
+      <h1>Contact</h1>
+      <p class="muted">
+        For business inquiries, collaborations, or a 1:1 call, send a message below.
+        You can also reach me on
+        <a href="https://www.instagram.com/___elham_amini___" target="_blank" rel="noopener">Instagram</a>
+        or
+        <a href="https://wa.me/19862180719" target="_blank" rel="noopener">WhatsApp</a>.
+      </p>
+
+      <form class="ea-form" action="https://formspree.io/f/mdklnaol" method="POST" accept-charset="UTF-8">
+        <label>
+          <span>Name</span>
+          <input type="text" name="name" placeholder="Your name" required>
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" placeholder="you@email.com" required>
+        </label>
+        <label class="full">
+          <span>How can I help?</span>
+          <textarea name="message" rows="6" placeholder="Tell me what you need…" required></textarea>
+        </label>
+        <input type="hidden" name="_subject" value="New message from elhamamini.cc">
+        <input type="hidden" name="_next" value="https://elhamamini.cc/thank-you.html">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+        <button class="button submit" type="submit">Send Message</button>
+      </form>
+
+      <div class="cta contact-quick">
+        <a class="button ghost" href="mailto:ha6876122@gmail.com">Email me directly</a>
+        <a class="button ghost" href="https://wa.me/19862180719" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-nav">
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html">Contact</a>
+      <a href="signin.html">Sign in</a>
+    </div>
+    © <span id="year"></span> Elham Amini.
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
