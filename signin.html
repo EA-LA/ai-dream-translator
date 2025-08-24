@@ -21,41 +21,54 @@
 
   <header class="wrap hero center">
     <h1 class="h1">Welcome back</h1>
-    <p class="lead">Sign in to your account or create a new one.</p>
+    <p class="lead">Sign in or create a free account.</p>
+    <p id="authMsg" class="small" style="margin-top:8px;"></p>
   </header>
 
   <main class="wrap grid two">
+    <!-- SIGN IN -->
     <section class="card">
       <h2>Sign in</h2>
-      <label class="label" for="si-email">Email</label>
-      <input class="input" id="si-email" type="email" placeholder="you@example.com" />
-      <label class="label mt" for="si-pass">Password</label>
-      <input class="input" id="si-pass" type="password" placeholder="••••••••" />
-      <div class="row mt2">
-        <button class="btn primary" onclick="alert('Demo only — backend coming soon')">Sign in</button>
-        <a class="btn ghost" href="#">Forgot password?</a>
-      </div>
+      <form onsubmit="signIn(event)">
+        <label class="label" for="si-email">Email</label>
+        <input class="input" id="si-email" type="email" placeholder="you@example.com" required />
+
+        <label class="label mt" for="si-pass">Password</label>
+        <input class="input" id="si-pass" type="password" placeholder="••••••••" required />
+
+        <div class="row mt2">
+          <button class="btn primary" type="submit">Sign in</button>
+          <a class="btn ghost" href="#" onclick="resetPass(event)">Forgot password?</a>
+        </div>
+      </form>
     </section>
 
+    <!-- SIGN UP -->
     <section class="card" id="signup">
       <h2>Create account</h2>
-      <label class="label" for="su-name">Full name</label>
-      <input class="input" id="su-name" type="text" placeholder="Your name" />
+      <form onsubmit="signUp(event)">
+        <label class="label" for="su-name">Full name</label>
+        <input class="input" id="su-name" type="text" placeholder="Your name" />
 
-      <label class="label mt" for="su-email">Email</label>
-      <input class="input" id="su-email" type="email" placeholder="you@example.com" />
+        <label class="label mt" for="su-email">Email</label>
+        <input class="input" id="su-email" type="email" placeholder="you@example.com" required />
 
-      <label class="label mt" for="su-pass">Password</label>
-      <input class="input" id="su-pass" type="password" placeholder="Create a password" />
+        <label class="label mt" for="su-pass">Password</label>
+        <input class="input" id="su-pass" type="password" placeholder="Create a password" required />
 
-      <div class="row mt2">
-        <button class="btn primary" onclick="alert('Demo only — backend coming soon')">Create account</button>
-        <a class="btn ghost" href="pricing.html">See plans</a>
-      </div>
+        <div class="row mt2">
+          <button class="btn primary" type="submit">Create account</button>
+          <a class="btn ghost" href="pricing.html">See plans</a>
+        </div>
+      </form>
+      <p class="small mt">After sign up, we’ll email you a verification link. Verify first, then sign in.</p>
     </section>
   </main>
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+
+  <!-- Load our Firebase auth module (no npm) -->
+  <script type="module" src="auth.js"></script>
   <script src="app.js" defer></script>
 </body>
 </html>
