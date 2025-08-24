@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Dream Translator</title>
+<meta name="description" content="Describe your dream, get scientific, psychological, and spiritual interpretations — plus dream art." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg">
+<div class="stars" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+</div>
+
+
+<header class="wrap header">
+<h1 class="title">AI Dream Translator</h1>
+<p class="tag">Describe last night's dream. Get <strong>scientific</strong>, <strong>psychological</strong>, and <strong>spiritual</strong> views. Optionally, generate dream art.</p>
+</header>
+
+
+<main class="wrap grid">
+<section class="card">
+<label class="label" for="dreamInput">Your dream</label>
+<textarea id="dreamInput" class="input" rows="6" placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
+
+
+<div class="row">
+<label class="switch">
+<input id="demoToggle" type="checkbox" />
+<span>Demo mode (no AI cost)</span>
+</label>
+<button id="interpretBtn" class="btn">Interpret Dream</button>
+<button id="imageBtn" class="btn ghost">Generate Dream Art</button>
+</div>
+
+
+<p class="mini">Note: This is for entertainment & self‑reflection. Not medical or clinical advice.</p>
+</section>
+
+
+<section class="card">
+<div class="tabs" role="tablist">
+<button class="tab is-active" data-tab="scientific" role="tab">Scientific</button>
+<button class="tab" data-tab="psychological" role="tab">Psychological</button>
+<button class="tab" data-tab="spiritual" role="tab">Spiritual</button>
+</div>
+<div class="panels">
+<article id="pane-scientific" class="panel is-active"></article>
+<article id="pane-psychological" class="panel"></article>
+<article id="pane-spiritual" class="panel"></article>
+</div>
+</section>
+
+
+<section class="card image-card">
+<h2 class="sub">Dream Art</h2>
+<div id="imageWrap" class="image-wrap">
+<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>
+</div>
+<div class="row">
+<button id="downloadBtn" class="btn ghost" disabled>Download</button>
+<button id="clearBtn" class="btn ghost">Clear</button>
+</div>
+</section>
+</main>
+
+
+<footer class="wrap foot">
+<span>© <span id="year"></span> AI Dream Translator • for reflection & fun</span>
+</footer>
+
+
+<script src="app.js" defer></script>
+</body>
+</html>
