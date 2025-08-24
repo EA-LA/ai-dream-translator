@@ -1,102 +1,94 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0a1026" />
-<title>AI Dream Translator — Understand your dreams</title>
-<meta name="description" content="Describe your dream and get scientific, psychological, and spiritual interpretations — plus dream art." />
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1026" />
+  <title>AI Dream Translator — Understand your dreams</title>
+  <meta name="description" content="Describe your dream and get scientific, psychological, and spiritual interpretations — plus dream art." />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="bg"><div class="stars" aria-hidden="true"></div><div class="glow" aria-hidden="true"></div></div>
+  <div class="bg"><div class="stars" aria-hidden="true"></div><div class="glow" aria-hidden="true"></div></div>
 
+  <nav class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html">
+        <span class="logo"></span>
+        <span>AI Dream Translator</span>
+      </a>
+      <div class="nav-links">
+        <a class="active" href="index.html">Home</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="contact.html">Contact</a>
+        <a href="signin.html" class="btn ghost">Sign in</a>
+        <a href="signin.html#signup" class="btn primary">Get started</a>
+      </div>
+    </div>
+  </nav>
 
-<nav class="nav">
-<div class="wrap nav-in">
-<a class="brand" href="/">
-<span class="logo"></span>
-<span>AI Dream Translator</span>
-</a>
-<div class="nav-links">
-<a class="active" href="/">Home</a>
-<a href="pricing.html">Pricing</a>
-<a href="contact.html">Contact</a>
-<a href="signin.html" class="btn ghost">Sign in</a>
-<a href="signin.html#signup" class="btn primary">Get started</a>
-</div>
-</div>
-</nav>
+  <header class="wrap hero">
+    <h1 class="h1">Understand your dreams.<br/>Turn them into beautiful art.</h1>
+    <p class="lead">Describe last night's dream — get <strong>scientific</strong>, <strong>psychological</strong>, and <strong>spiritual</strong> insights in seconds. Generate surreal dream art you can share.</p>
+    <div class="ctas">
+      <a href="#try" class="btn primary">Try it free</a>
+      <a href="pricing.html" class="btn ghost">See Pricing</a>
+    </div>
+  </header>
 
+  <main id="try" class="wrap grid two">
+    <section class="card">
+      <label class="label" for="dreamInput">Your dream</label>
+      <textarea id="dreamInput" class="textarea" rows="6" placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
+      <div class="row mt">
+        <button id="interpretBtn" class="btn primary">Interpret Dream</button>
+        <button id="imageBtn" class="btn ghost">Generate Dream Art</button>
+      </div>
+      <p class="small mt">Note: For reflection & entertainment. Not medical or clinical advice.</p>
+    </section>
 
-<header class="wrap hero">
-<h1 class="h1">Understand your dreams.<br/>Turn them into beautiful art.</h1>
-<p class="lead">Describe last night's dream — get <strong>scientific</strong>, <strong>psychological</strong>, and <strong>spiritual</strong> insights in seconds. Generate surreal dream art you can share.</p>
-<div class="ctas">
-<a href="#try" class="btn primary">Try it free</a>
-<a href="pricing.html" class="btn ghost">See Pricing</a>
-</div>
-</header>
+    <section class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab is-active" data-tab="scientific" role="tab">Scientific</button>
+        <button class="tab" data-tab="psychological" role="tab">Psychological</button>
+        <button class="tab" data-tab="spiritual" role="tab">Spiritual</button>
+      </div>
+      <div class="panels">
+        <article id="pane-scientific" class="panel is-active"></article>
+        <article id="pane-psychological" class="panel"></article>
+        <article id="pane-spiritual" class="panel"></article>
+      </div>
+    </section>
 
+    <section class="card" style="grid-column:1/-1">
+      <h2 class="h2">Dream Art</h2>
+      <div id="imageWrap" class="image-wrap">
+        <div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>
+      </div>
+      <div class="row mt">
+        <button id="downloadBtn" class="btn ghost" disabled>Download</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
+      </div>
+    </section>
 
-<main id="try" class="wrap grid two">
-<section class="card">
-<label class="label" for="dreamInput">Your dream</label>
-<textarea id="dreamInput" class="textarea" rows="6" placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
-<div class="row mt">
-<button id="interpretBtn" class="btn primary">Interpret Dream</button>
-<button id="imageBtn" class="btn ghost">Generate Dream Art</button>
-</div>
-<p class="small mt">Note: For reflection & entertainment. Not medical or clinical advice.</p>
-</section>
+    <section class="grid three" style="grid-column:1/-1">
+      <div class="card feature">
+        <h3>Three lenses</h3>
+        <p>Get complementary views: neuroscience, psychology, and spiritual reflection.</p>
+      </div>
+      <div class="card feature">
+        <h3>Art you can share</h3>
+        <p>Create surreal dream visuals perfect for TikTok, Instagram, or your journal.</p>
+      </div>
+      <div class="card feature">
+        <h3>Private by default</h3>
+        <p>Your dreams are yours. We’ll add secure accounts and history in the next step.</p>
+      </div>
+    </section>
+  </main>
 
+  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator • for reflection & fun</footer>
 
-<section class="card">
-<div class="tabs" role="tablist">
-<button class="tab is-active" data-tab="scientific" role="tab">Scientific</button>
-<button class="tab" data-tab="psychological" role="tab">Psychological</button>
-<button class="tab" data-tab="spiritual" role="tab">Spiritual</button>
-</div>
-<div class="panels">
-<article id="pane-scientific" class="panel is-active"></article>
-<article id="pane-psychological" class="panel"></article>
-<article id="pane-spiritual" class="panel"></article>
-</div>
-</section>
-
-
-<section class="card" style="grid-column:1/-1">
-<h2 class="h2">Dream Art</h2>
-<div id="imageWrap" class="image-wrap">
-<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>
-</div>
-<div class="row mt">
-<button id="downloadBtn" class="btn ghost" disabled>Download</button>
-<button id="clearBtn" class="btn ghost">Clear</button>
-</div>
-</section>
-
-
-<section class="grid three" style="grid-column:1/-1">
-<div class="card feature">
-<h3>Three lenses</h3>
-<p>Get complementary views: neuroscience, psychology, and spiritual reflection.</p>
-</div>
-<div class="card feature">
-<h3>Art you can share</h3>
-<p>Create surreal dream visuals perfect for TikTok, Instagram, or your journal.</p>
-</div>
-<div class="card feature">
-<h3>Private by default</h3>
-<p>Your dreams are yours. We’ll add secure accounts and history in the next step.</p>
-</div>
-</section>
-</main>
-
-
-<footer class="wrap foot">© <span id="year"></span> AI Dream Translator • for reflection & fun</footer>
-
-
-<script src="app.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
