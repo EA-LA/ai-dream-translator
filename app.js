@@ -55,7 +55,7 @@ const clearImage = () => {
   const dl = $('#downloadBtn'); if (dl) dl.disabled = true;
 };
 
-// Hook buttons
+// Hook homepage buttons
 const interpretBtn = $('#interpretBtn');
 if (interpretBtn) {
   interpretBtn.addEventListener('click', () => {
@@ -76,5 +76,14 @@ if (imageBtn) {
 
 const clearBtn = $('#clearBtn');
 if (clearBtn) clearBtn.addEventListener('click', clearImage);
+
+// FAQ accordion
+$$('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    q.classList.toggle('is-open');
+    // close others
+    $$('.faq-q').forEach(other => { if (other !== q) other.classList.remove('is-open'); });
+  });
+});
 
 clearImage();
