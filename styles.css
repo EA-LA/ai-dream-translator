@@ -67,7 +67,7 @@ body{
 .btn.ghost{background:transparent; color:var(--ink); border-color:rgba(255,255,255,.14)}
 .btn.ghost:hover{border-color:rgba(255,255,255,.26)}
 
-/* ======== GRID SECTIONS ======== */
+/* ======== GRID ======== */
 .grid{display:grid; gap:18px}
 .two{grid-template-columns:1fr}
 @media(min-width:980px){.two{grid-template-columns:1.05fr 1fr}}
@@ -90,7 +90,7 @@ body{
 .image-empty{color:var(--muted)}
 .image-wrap img{max-width:100%; border-radius:12px; display:block}
 
-/* ======== TABLES (pricing) ======== */
+/* ======== PRICE GRID ======== */
 .price-grid{display:grid; gap:16px; grid-template-columns:1fr; margin-top:8px}
 @media(min-width:900px){.price-grid{grid-template-columns:repeat(3,1fr)}}
 .price-card h3{margin:0 0 6px}
@@ -99,8 +99,20 @@ body{
 .li{display:flex; align-items:center; gap:8px; color:var(--ink); margin:.35rem 0}
 .li .dot{width:8px; height:8px; border-radius:50%; background:var(--ok)}
 
-/* ======== FOOTER ======== */
-.foot{padding:30px 0 56px; color:var(--muted); font-size:14px; text-align:center}
+/* ======== FAQ ======== */
+.faq{max-width:900px; margin:12px auto}
+.faq-q{width:100%; text-align:left; background:rgba(255,255,255,.06); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:12px 14px; border-radius:12px; margin:8px 0; cursor:pointer; font-weight:800}
+.faq-a{display:none; padding:10px 14px; color:var(--muted)}
+.faq-q.is-open + .faq-a{display:block}
+
+/* ======== FOOTER COLUMNS ======== */
+.footer-cols{margin-top:38px; border-top:1px solid rgba(255,255,255,.08)}
+.cols{display:grid; gap:18px; grid-template-columns:1fr}
+@media(min-width:900px){.cols{grid-template-columns:2fr 1fr 1fr 1fr}}
+.footer-cols h4{margin:0 0 8px}
+.footer-cols a{display:block; color:var(--muted); text-decoration:none; margin:6px 0}
+.footer-cols a:hover{color:var(--ink)}
+.brand-row{display:flex; align-items:center; gap:10px; margin-bottom:10px}
 
 /* ======== UTIL ======== */
 .mt{margin-top:12px} .mt2{margin-top:18px} .mt3{margin-top:26px}
