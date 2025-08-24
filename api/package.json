@@ -1,8 +1,0 @@
-{
-  "name": "ai-dream-translator",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "stripe": "^14.25.0"
-  }
-}
