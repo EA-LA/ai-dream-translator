@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1026" />
+  <title>Dashboard — AI Dream Translator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
+
+  <nav class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="dashboard.html">
+        <span class="logo"></span><span>AI Dream Translator</span>
+      </a>
+      <div class="nav-links">
+        <a class="active" href="dashboard.html">Dashboard</a>
+        <a href="settings.html">Settings</a>
+        <a href="pricing.html">Upgrade</a>
+        <a href="index.html" class="btn ghost">Public Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="wrap hero">
+    <h1 class="h1">Welcome back 👋</h1>
+    <p class="lead">Log a dream, see insights, and build your private dream history.</p>
+  </header>
+
+  <main class="wrap grid two">
+    <section class="card">
+      <h2>New Dream</h2>
+      <label class="label" for="d1">Describe your dream</label>
+      <textarea id="d1" class="textarea" rows="6" placeholder="What do you remember? People, places, feelings…"></textarea>
+      <div class="row mt">
+        <button class="btn primary" onclick="alert('Demo — will save to Firestore later')">Save</button>
+        <a class="btn ghost" href="index.html#try">Interpret & Art</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Streak & Reminders</h2>
+      <p class="small">You’re on a 0-day streak. We’ll add reminders after auth.</p>
+      <div class="row mt">
+        <button class="btn ghost" onclick="alert('Demo — notifications later')">Enable reminders</button>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1/-1">
+      <h2>Recent Dreams</h2>
+      <p class="small">Your saved dreams will appear here (search & filter coming soon).</p>
+      <div class="image-wrap"><div class="image-empty">No dreams yet.</div></div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+  <script src="app.js" defer></script>
+</body>
+</html>
