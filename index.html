@@ -1,77 +1,221 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Dream Translator</title>
-<meta name="description" content="Describe your dream, get scientific, psychological, and spiritual interpretations — plus dream art." />
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elham Amini — Official Website</title>
+  <meta name="description" content="Elham Amini — Digital Stoic, App Builder, Trader. Building systems, freedom, and legacy." />
+
+  <!-- iOS/Android dark bars -->
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Elham Amini">
+
+  <!-- Open Graph (optional image can be added later) -->
+  <meta property="og:title" content="Elham Amini — Digital Stoic, App Builder, Trader">
+  <meta property="og:description" content="Apps. Websites. Systems. Discipline.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://ea-la.github.io/og-image.jpg">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="Elham Amini — Digital Stoic, App Builder, Trader">
+  <meta property="twitter:description" content="Apps. Websites. Systems. Discipline.">
+  <meta property="twitter:image" content="https://ea-la.github.io/og-image.jpg">
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="bg">
-<div class="stars" aria-hidden="true"></div>
-<div class="glow" aria-hidden="true"></div>
-</div>
 
+  <!-- INTRO SCREEN -->
+  <div id="intro" role="dialog" aria-label="Welcome screen">
+    <div class="intro-inner">
+      <span class="intro-msg" id="introMsg"></span><span class="intro-cursor" id="introCursor">▍</span>
+    </div>
+  </div>
 
-<header class="wrap header">
-<h1 class="title">AI Dream Translator</h1>
-<p class="tag">Describe last night's dream. Get <strong>scientific</strong>, <strong>psychological</strong>, and <strong>spiritual</strong> views. Optionally, generate dream art.</p>
-</header>
+  <header class="nav">
+    <a class="brand" href="index.html">Elham Amini</a>
+    <nav class="menu">
+      <a href="#about">About</a>
+      <a href="#philosophy">Philosophy</a>
+      <a href="#services">Services</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#stories">Stories</a>
+      <a href="pricing.html">Pricing</a>
+      <a class="button small" href="contact.html">Contact</a>
+    </nav>
+  </header>
 
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <h1>Elham Amini</h1>
+      <p class="subtitle">
+        Digital Stoic • Biohacker • Student of Life • App Builder • Trader • Wealth Architect • Matrix Breaker • Decoding the Game
+      </p>
+      <div class="cta">
+        <a class="button" href="pricing.html">Get Started</a>
+        <a class="button ghost" href="https://www.instagram.com/___elham_amini___" target="_blank" rel="noopener">Instagram</a>
+        <a class="button ghost" href="https://wa.me/19862180719" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </section>
 
-<main class="wrap grid">
-<section class="card">
-<label class="label" for="dreamInput">Your dream</label>
-<textarea id="dreamInput" class="input" rows="6" placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
+    <!-- ABOUT -->
+    <section id="about">
+      <h2>About</h2>
+      <div class="about-wrap text-only">
+        <div class="about-text">
+          <p>
+            I’m building apps, systems, and digital empires that help creators and entrepreneurs win.
+            My operating system blends <strong>stoicism</strong> (control yourself), <strong>biohacking</strong> (upgrade the body),
+            and <strong>relentless execution</strong> (ship fast). This isn’t about fitting in —
+            it’s about <strong>freedom, legacy, and rewriting the rules of the Matrix</strong>.
+          </p>
+          <ul class="bullets tight">
+            <li><strong>Founder mindset:</strong> design with intent, measure with truth, iterate with speed.</li>
+            <li><strong>Products over promises:</strong> useful software beats noise.</li>
+            <li><strong>Community first:</strong> empower teens & builders to create real leverage.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
+    <!-- PHILOSOPHY -->
+    <section id="philosophy">
+      <h2>Philosophy</h2>
+      <div class="pill-grid">
+        <span class="pill">Discipline &gt; Motivation</span>
+        <span class="pill">Freedom is a Skill</span>
+        <span class="pill">Build Systems, Not Jobs</span>
+        <span class="pill">Skin in the Game</span>
+        <span class="pill">Privacy by Default</span>
+        <span class="pill">Speed + Quality</span>
+      </div>
+      <p class="muted">Execution compounds. Every day is a rep.</p>
+    </section>
 
-<div class="row">
-<label class="switch">
-<input id="demoToggle" type="checkbox" />
-<span>Demo mode (no AI cost)</span>
-</label>
-<button id="interpretBtn" class="btn">Interpret Dream</button>
-<button id="imageBtn" class="btn ghost">Generate Dream Art</button>
-</div>
+    <!-- SERVICES -->
+    <section id="services">
+      <h2>Services</h2>
+      <div class="grid">
+        <article class="card glow">
+          <h3>App Build & UI Review</h3>
+          <p>Swift/Xcode guidance, feature planning, and UI/UX polish to ship V1 clean and fast.</p>
+          <a class="chip" href="contact.html">Request Review</a>
+        </article>
+        <article class="card glow">
+          <h3>Trading Utilities & Setup</h3>
+          <p>Position-size tools, journaling, and risk frameworks tailored to your strategy.</p>
+          <a class="chip" href="contact.html">Get Setup</a>
+        </article>
+        <article class="card glow">
+          <h3>1:1 Strategy Call</h3>
+          <p>30–45 min focused session: roadmap, bottlenecks, and next actions.</p>
+          <a class="button small" href="contact.html">Book a Call</a>
+        </article>
+        <article class="card glow">
+          <h3>App & Website Development</h3>
+          <p>Custom apps and websites built from scratch — clean design, fast, and future-proof.</p>
+          <a class="button small" href="contact.html">Request a Build</a>
+        </article>
+      </div>
+    </section>
 
+    <!-- SKILLS -->
+    <section id="skills">
+      <h2>Skills / Stack</h2>
+      <div class="pill-grid" style="margin-top:8px">
+        <span class="pill">Swift • Xcode</span>
+        <span class="pill">iOS UI/UX</span>
+        <span class="pill">Firebase</span>
+        <span class="pill">REST / JSON</span>
+        <span class="pill">HTML • CSS • JS</span>
+        <span class="pill">Static Sites (GitHub Pages)</span>
+        <span class="pill">WordPress / Shopify</span>
+        <span class="pill">Integrations • Automation</span>
+        <span class="pill">AI APIs</span>
+        <span class="pill">Trading Systems & Journaling</span>
+      </div>
+      <p class="muted">Delivering clean design, fast performance, and simple systems that scale.</p>
+    </section>
 
-<p class="mini">Note: This is for entertainment & self‑reflection. Not medical or clinical advice.</p>
-</section>
+    <!-- PROJECTS -->
+    <section id="projects">
+      <h2>Featured Project</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>FYNX (iOS)</h3>
+          <p>Trading utilities, calculators, and clean UI built in Swift. A practical toolkit for disciplined traders.</p>
+          <div><span class="badge">Swift</span> <span class="badge">iOS</span></div>
+        </article>
+      </div>
+      <p class="muted">More projects will appear here as they launch.</p>
+    </section>
 
+    <!-- STORIES -->
+    <section id="stories">
+      <h2>Success Stories</h2>
+      <div class="grid">
+        <blockquote class="quote">“Elham’s frameworks turned my chaos into a plan. I finally trade my plan — not my mood.” <span>— M.S.</span></blockquote>
+        <blockquote class="quote">“Actionable steps every call. No fluff — just clarity and momentum.” <span>— R.T.</span></blockquote>
+        <blockquote class="quote">“UI review + system setup helped me ship v1 3× faster.” <span>— A.K.</span></blockquote>
+      </div>
+    </section>
 
-<section class="card">
-<div class="tabs" role="tablist">
-<button class="tab is-active" data-tab="scientific" role="tab">Scientific</button>
-<button class="tab" data-tab="psychological" role="tab">Psychological</button>
-<button class="tab" data-tab="spiritual" role="tab">Spiritual</button>
-</div>
-<div class="panels">
-<article id="pane-scientific" class="panel is-active"></article>
-<article id="pane-psychological" class="panel"></article>
-<article id="pane-spiritual" class="panel"></article>
-</div>
-</section>
+    <!-- FINAL CTA -->
+    <section class="final-cta">
+      <h2>Ready to build with discipline?</h2>
+      <div class="cta">
+        <a class="button" href="pricing.html">See Pricing</a>
+        <a class="button ghost" href="contact.html">Contact</a>
+      </div>
+    </section>
 
+    <!-- MORE ABOUT LINK -->
+    <section class="more-about">
+      <p style="text-align:center; margin-top:40px;">
+        <a href="https://elhamamini.notion.site/SBA-worksheet-by-Elham-Amini-12ae247d3a6b80d0aeebeebe2d65e8ee?pvs=74" 
+           target="_blank" rel="noopener"
+           style="color:var(--accent-2); font-weight:600; text-decoration:none;">
+          ➝ More about Elham
+        </a>
+      </p>
+    </section>
+  </main>
 
-<section class="card image-card">
-<h2 class="sub">Dream Art</h2>
-<div id="imageWrap" class="image-wrap">
-<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>
-</div>
-<div class="row">
-<button id="downloadBtn" class="btn ghost" disabled>Download</button>
-<button id="clearBtn" class="btn ghost">Clear</button>
-</div>
-</section>
-</main>
+  <footer>
+    <div class="footer-nav">
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html">Contact</a>
+      <a href="signin.html">Sign in</a>
+    </div>
+    © <span id="year"></span> Elham Amini. All rights reserved.
+  </footer>
 
+  <!-- INTRO script -->
+  <script>
+  (function(){
+    const intro = document.getElementById('intro');
+    const msgEl = document.getElementById('introMsg');
+    const seen = sessionStorage.getItem('seenIntro');
+    if (seen === '1') { intro.remove(); return; }
+    document.body.classList.add('intro-lock');
+    const message = "Welcome, you've entered the system...";
+    let i = 0;
+    const speed = 55;
+    function type() {
+      if (i < message.length) { msgEl.textContent += message.charAt(i++); setTimeout(type, speed); }
+      else { setTimeout(()=>{ intro.classList.add('fade'); document.body.classList.remove('intro-lock');
+        setTimeout(()=>{ intro.remove(); sessionStorage.setItem('seenIntro','1'); }, 650); }, 500); }
+    }
+    window.addEventListener('load', () => setTimeout(type, 300));
+  })();
+  </script>
 
-<footer class="wrap foot">
-<span>© <span id="year"></span> AI Dream Translator • for reflection & fun</span>
-</footer>
-
-
-<script src="app.js" defer></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
