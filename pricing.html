@@ -23,6 +23,7 @@
   <header class="wrap hero center">
     <h1 class="h1">Simple, fair pricing</h1>
     <p class="lead">Start free. Upgrade when you want unlimited interpretations and dream art.</p>
+    <p id="payMsg" class="small"></p>
   </header>
 
   <main class="wrap">
@@ -49,7 +50,7 @@
           <div class="li"><span class="dot"></span> Dream history & search</div>
           <div class="li"><span class="dot"></span> Priority support</div>
         </div>
-        <div class="mt2"><a class="btn primary" href="signin.html#signup">Upgrade</a></div>
+        <div class="mt2"><button class="btn primary" id="btnProMonthly">Upgrade</button></div>
       </section>
 
       <section class="card price-card">
@@ -61,18 +62,70 @@
           <div class="li"><span class="dot"></span> Yearly insights report</div>
           <div class="li"><span class="dot"></span> Early access features</div>
         </div>
-        <div class="mt2"><a class="btn ghost" href="signin.html#signup">Go yearly</a></div>
+        <div class="mt2"><button class="btn ghost" id="btnProYearly">Go yearly</button></div>
       </section>
     </div>
-
-    <section class="grid three mt3">
-      <div class="card"><h3>Payments</h3><p class="small">Stripe integration comes next. Buttons link to sign-up for now.</p></div>
-      <div class="card"><h3>Cancel anytime</h3><p class="small">No hidden fees. Your data stays private.</p></div>
-      <div class="card"><h3>Student discount</h3><p class="small">We’ll add coupon codes in the next release.</p></div>
-    </section>
   </main>
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+
+  <!-- Firebase (to check login state only) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjoLNuLEFwEZURiZAj_O3q-YXu4kug2eM",
+      authDomain: "ai-dream-translator.firebaseapp.com",
+      projectId: "ai-dream-translator",
+      storageBucket: "ai-dream-translator.firebasestorage.app",
+      messagingSenderId: "684674852759",
+      appId: "1:684674852759:web:732de7d510e70187de06d2",
+      measurementId: "G-CPZLDSPPGK"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const payMsg = document.getElementById('payMsg');
+    const btnMonthly = document.getElementById('btnProMonthly');
+    const btnYearly  = document.getElementById('btnProYearly');
+
+    function requireLoginThen(action){
+      onAuthStateChanged(auth, (user) => {
+        if (!user) { window.location.href = "signin.html?next=pricing.html"; }
+        else { action(user); }
+      });
+    }
+
+    async function startCheckout({ yearly = false, user }){
+      try{
+        payMsg.textContent = "Creating secure checkout…";
+        const r = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            priceId: yearly ? "YEARLY" : null,
+            email: user?.email || null,
+            successUrl: `${window.location.origin}/success.html`,
+            cancelUrl: `${window.location.origin}/pricing.html`
+          })
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || "Checkout failed");
+        window.location.href = data.url;
+      } catch (e) {
+        payMsg.textContent = e.message || "Could not start checkout.";
+      }
+    }
+
+    btnMonthly?.addEventListener("click", () => {
+      requireLoginThen((user) => startCheckout({ yearly:false, user }));
+    });
+    btnYearly?.addEventListener("click", () => {
+      requireLoginThen((user) => startCheckout({ yearly:true, user }));
+    });
+  </script>
+
   <script src="app.js" defer></script>
 </body>
 </html>
