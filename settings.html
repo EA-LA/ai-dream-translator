@@ -7,15 +7,14 @@
   <title>Settings — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body data-requires-auth>
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
   <nav class="nav"><div class="wrap nav-in">
-    <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+    <a class="brand" href="dashboard.html"><span class="logo"></span><span>AI Dream Translator</span></a>
     <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="pricing.html">Pricing</a>
-      <a href="contact.html">Contact</a>
+      <a href="dashboard.html">Dashboard</a>
       <a class="active" href="settings.html">Settings</a>
+      <a href="#" class="btn ghost" onclick="doSignOut(event)">Sign out</a>
     </div>
   </div></nav>
 
@@ -24,31 +23,25 @@
   <main class="wrap grid two">
     <section class="card">
       <h2>Profile</h2>
-      <label class="label" for="s-name">Display name</label>
-      <input id="s-name" class="input" type="text" placeholder="Your name" />
-      <label class="label mt" for="s-email">Email</label>
-      <input id="s-email" class="input" type="email" placeholder="you@example.com" />
-      <div class="row mt2"><button class="btn primary" onclick="alert('Saved (demo)')">Save profile</button></div>
+      <form onsubmit="saveProfile(event)">
+        <label class="label" for="s-name">Display name</label>
+        <input id="s-name" class="input" type="text" placeholder="Your name" />
+        <label class="label mt" for="s-email">Email</label>
+        <input id="s-email" class="input" type="email" placeholder="you@example.com" disabled />
+        <div class="row mt2"><button class="btn primary" type="submit">Save profile</button></div>
+      </form>
     </section>
 
     <section class="card">
-      <h2>Preferences</h2>
-      <label class="label" for="theme">Theme</label>
-      <select id="theme" class="select">
-        <option>Auto</option>
-        <option>Light</option>
-        <option selected>Dark</option>
-      </select>
-
-      <div class="mt2"><label class="label">Notifications</label>
-        <div class="row"><input type="checkbox" id="n1" /><label for="n1">Dream streak reminders</label></div>
-        <div class="row"><input type="checkbox" id="n2" /><label for="n2">Weekly insights</label></div>
-      </div>
-      <div class="row mt2"><button class="btn primary" onclick="alert('Saved (demo)')">Save preferences</button></div>
+      <h2>Subscription</h2>
+      <p class="small">Upgrade to Pro for unlimited interpretations and HD dream art.</p>
+      <a class="btn primary" href="pricing.html">Upgrade</a>
     </section>
   </main>
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+
+  <script type="module" src="auth.js"></script>
   <script src="app.js" defer></script>
 </body>
 </html>
