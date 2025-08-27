@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-requires-auth>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,45 +7,88 @@
   <title>Dashboard — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body data-requires-auth>
+<body>
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
 
+  <!-- Top bar -->
   <nav class="nav">
     <div class="wrap nav-in">
-      <a class="brand" href="dashboard.html"><span class="logo"></span><span>AI Dream Translator</span></a>
-      <div class="nav-links">
-        <a class="active" href="dashboard.html">Dashboard</a>
+      <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+      <div class="nav-links" id="authedNav">
+        <a href="dashboard.html" class="active">Dashboard</a>
         <a href="settings.html">Settings</a>
         <a href="pricing.html">Upgrade</a>
-        <a href="#" class="btn ghost" onclick="doSignOut(event)">Sign out</a>
+        <button class="btn ghost" id="signOutBtn">Sign out</button>
       </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span></button>
     </div>
   </nav>
 
   <header class="wrap hero">
-    <h1 class="h1">Welcome, <span id="whoami">friend</span> 👋</h1>
+    <h1 class="h1">Welcome, <span id="welcomeName">friend</span> 👋</h1>
     <p class="lead">Log a dream, see insights, and build your private dream history.</p>
   </header>
 
   <main class="wrap grid two">
+    <!-- LEFT: Quick create + actions -->
     <section class="card">
       <h2>New Dream</h2>
-      <label class="label" for="d1">Describe your dream</label>
-      <textarea id="d1" class="textarea" rows="6" placeholder="What do you remember?"></textarea>
-      <div class="row mt">
-        <button class="btn primary" onclick="alert('Demo — store to Firestore soon')">Save</button>
-        <a class="btn ghost" href="index.html#try">Interpret & Art</a>
+      <p class="small">Describe your dream</p>
+      <textarea id="dreamText" class="textarea" placeholder="What do you remember?"></textarea>
+
+      <div class="row mt2">
+        <button class="btn primary" id="saveDreamBtn">Save</button>
+        <button class="btn ghost" id="interpretBtn2">Interpret & Art</button>
       </div>
+
+      <div class="row mt2">
+        <button class="btn ghost" id="shareLastBtn" title="Share last dream">Share last</button>
+        <button class="btn ghost" id="clearAllBtn" title="Delete all local dreams">Clear all</button>
+      </div>
+      <p class="small mt">Sharing uses your phone’s native share sheet when available.</p>
     </section>
 
+    <!-- RIGHT: Stats -->
     <section class="card">
-      <h2>Streak & Reminders</h2>
-      <p class="small">We’ll add reminders after we wire notifications.</p>
+      <h2>Your Stats</h2>
+      <div class="grid three" style="margin-top:8px">
+        <div class="stat">
+          <div class="stat-num" id="statCount">0</div>
+          <div class="stat-label small">Dreams saved</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statStreak">0</div>
+          <div class="stat-label small">Day streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statThisWeek">0</div>
+          <div class="stat-label small">This week</div>
+        </div>
+      </div>
+      <p class="small mt">Streak counts the number of consecutive days you’ve logged at least one dream.</p>
+    </section>
+
+    <!-- JOURNAL LIST -->
+    <section class="card" style="grid-column:1/-1">
+      <div class="row" style="justify-content:space-between">
+        <h2>Journal</h2>
+        <div class="row">
+          <select class="select" id="filterSelect" style="min-width:140px">
+            <option value="all">All entries</option>
+            <option value="week">Last 7 days</option>
+            <option value="month">Last 30 days</option>
+          </select>
+        </div>
+      </div>
+
+      <ul id="journalList" class="journal"></ul>
+      <p class="small" id="emptyMsg">No dreams yet — write your first one above.</p>
     </section>
   </main>
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
 
+  <!-- Scripts -->
   <script type="module" src="auth.js"></script>
   <script src="app.js" defer></script>
 </body>
