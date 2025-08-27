@@ -67,8 +67,17 @@
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
 
-  <!-- Load our Firebase auth module (no npm) -->
+  <!-- Firebase auth -->
   <script type="module" src="auth.js"></script>
+
+  <!-- Redirect handler for ?next= -->
+  <script>
+    const params = new URLSearchParams(location.search);
+    const next = params.get('next');
+    if (next) window._afterLogin = () => location.href = next;
+  </script>
+
+  <!-- Other app scripts -->
   <script src="app.js" defer></script>
 </body>
 </html>
