@@ -18,8 +18,8 @@ body{
     radial-gradient(80vw 60vh at 70% -20%, rgba(122,168,255,.06), transparent 60%),
     linear-gradient(180deg,var(--bg-1),var(--bg-2));
   -webkit-tap-highlight-color: transparent;
-  min-height:100svh;                     /* full height on iOS */
-  padding-bottom:env(safe-area-inset-bottom,0px); /* keep above home bar */
+  min-height:100svh;
+  padding-bottom:env(safe-area-inset-bottom,0px);
 }
 :focus-visible{outline:2px solid var(--ring); outline-offset:2px}
 
@@ -45,12 +45,12 @@ body{
 .nav-in{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0; height:64px}
 .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); font-weight:800}
 
-/* 🔹 Logo updated: background image + gradient */
+/* Logo = gradient + your image (put logo.png at repo root) */
 .brand .logo{
   width:28px; height:28px; border-radius:8px;
-  background: 
+  background:
     linear-gradient(180deg, var(--accent), var(--accent-2)),
-    url('/logo.png') center/cover no-repeat;   /* replace with your logo path */
+    url('/logo.png') center/cover no-repeat;
   box-shadow:0 6px 18px rgba(122,168,255,.35);
 }
 
@@ -60,10 +60,21 @@ body{
 .nav-links a.active{color:var(--ink); background:rgba(255,255,255,.08)}
 .nav-links .btn{border:1px solid rgba(255,255,255,.14)}
 
-/* Mobile hamburger support (works with app.js) */
-.hamburger{display:none; width:42px; height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08); color:#fff; cursor:pointer; align-items:center; justify-content:center}
-.hamburger span, .hamburger:before, .hamburger:after{content:""; display:block; width:20px; height:2px; background:#fff; border-radius:2px}
-.hamburger:before{transform:translateY(-6px)} .hamburger:after{transform:translateY(6px)}
+/* Hamburger button (mobile) */
+.hamburger{
+  display:none; width:42px; height:42px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  color:#fff; cursor:pointer; align-items:center; justify-content:center;
+  position:relative;
+}
+.hamburger span,
+.hamburger::before,
+.hamburger::after{
+  content:""; display:block; width:20px; height:2px; background:#fff; border-radius:2px;
+}
+.hamburger::before{position:absolute; transform:translateY(-6px)}
+.hamburger::after{position:absolute; transform:translateY(6px)}
 
 @media (max-width:900px){
   .hamburger{display:flex}
@@ -75,7 +86,8 @@ body{
     border-bottom:1px solid rgba(255,255,255,.08);
     padding:12px env(safe-area-inset-right,12px) 14px env(safe-area-inset-left,12px);
   }
-  body.nav-open .nav-links a, body.nav-open .nav-links .btn{width:100%; text-align:center}
+  body.nav-open .nav-links a,
+  body.nav-open .nav-links .btn{width:100%; text-align:center}
 }
 
 /* ======== HERO ======== */
