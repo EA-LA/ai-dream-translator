@@ -7,35 +7,94 @@
   <title>Settings — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body data-requires-auth>
+<body>
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
-  <nav class="nav"><div class="wrap nav-in">
-    <a class="brand" href="dashboard.html"><span class="logo"></span><span>AI Dream Translator</span></a>
-    <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a class="active" href="settings.html">Settings</a>
-      <a href="#" class="btn ghost" onclick="doSignOut(event)">Sign out</a>
-    </div>
-  </div></nav>
 
-  <header class="wrap hero center"><h1 class="h1">Account settings</h1></header>
+  <nav class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="settings.html" class="active">Settings</a>
+        <a href="pricing.html">Upgrade</a>
+        <button class="btn ghost" id="signOutBtn">Sign out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span></button>
+    </div>
+  </nav>
+
+  <header class="wrap hero">
+    <h1 class="h1">Account settings</h1>
+    <p class="lead">Personalize your profile, notifications, and privacy.</p>
+  </header>
 
   <main class="wrap grid two">
+    <!-- Profile -->
     <section class="card">
       <h2>Profile</h2>
-      <form onsubmit="saveProfile(event)">
-        <label class="label" for="s-name">Display name</label>
-        <input id="s-name" class="input" type="text" placeholder="Your name" />
-        <label class="label mt" for="s-email">Email</label>
-        <input id="s-email" class="input" type="email" placeholder="you@example.com" disabled />
-        <div class="row mt2"><button class="btn primary" type="submit">Save profile</button></div>
-      </form>
+
+      <div class="row">
+        <div class="avatar" id="avatarPreview"></div>
+        <div>
+          <label class="label">Avatar</label>
+          <input type="file" accept="image/*" id="avatarInput" class="input" />
+          <p class="small">We store avatar locally for now.</p>
+        </div>
+      </div>
+
+      <label class="label mt">Display name</label>
+      <input class="input" id="displayName" placeholder="Your name" />
+
+      <label class="label mt">Username</label>
+      <input class="input" id="username" placeholder="@username" />
+
+      <label class="label mt">Email</label>
+      <input class="input" id="emailReadonly" disabled />
+
+      <div class="row mt2">
+        <button class="btn primary" id="saveProfileBtn">Save profile</button>
+      </div>
     </section>
 
+    <!-- Preferences -->
     <section class="card">
-      <h2>Subscription</h2>
-      <p class="small">Upgrade to Pro for unlimited interpretations and HD dream art.</p>
-      <a class="btn primary" href="pricing.html">Upgrade</a>
+      <h2>Preferences</h2>
+
+      <div class="row">
+        <label class="switch">
+          <input type="checkbox" id="notifToggle" />
+          <span class="slider"></span>
+        </label>
+        <div>
+          <div><strong>Reminders</strong></div>
+          <div class="small">Send a daily reminder to write last night’s dream.</div>
+        </div>
+      </div>
+
+      <div class="row mt2">
+        <label class="switch">
+          <input type="checkbox" id="privateToggle" />
+          <span class="slider"></span>
+        </label>
+        <div>
+          <div><strong>Private mode</strong></div>
+          <div class="small">Hide sharing buttons and blur entries on load.</div>
+        </div>
+      </div>
+
+      <div class="row mt2">
+        <button class="btn ghost" id="exportBtn">Export journal (.json)</button>
+        <button class="btn ghost" id="importBtn">Import</button>
+        <input id="importFile" type="file" accept="application/json" class="hidden" />
+      </div>
+
+      <hr class="mt2" style="border-color:rgba(255,255,255,.08)">
+
+      <h3 class="mt2">Danger zone</h3>
+      <p class="small">These actions cannot be undone.</p>
+      <div class="row">
+        <button class="btn" id="clearLocalBtn" style="border-color:rgba(255,100,100,.4); color:#ffdede; background:transparent">Delete all local data</button>
+      </div>
     </section>
   </main>
 
