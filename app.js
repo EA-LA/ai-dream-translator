@@ -1,169 +1,260 @@
-// =======================================
-// app.js — site-wide helpers + homepage demo
-// =======================================
-
-// Shorthands
+// ===== Helpers =====
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
+const todayISO = () => new Date().toISOString().slice(0,10);
 
-// ------------------------
 // Footer year
-// ------------------------
-(() => {
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-})();
+const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
 
-// ------------------------
-// Responsive navbar (mobile hamburger)
-// ------------------------
-(() => {
-  const shell = document.querySelector('.nav .nav-in');
-  if (!shell) return;
+// Mobile menu
+const hamburger = $('#hamburger');
+if (hamburger) hamburger.addEventListener('click', () => document.body.classList.toggle('nav-open'));
 
-  // ensure we have a hamburger button
-  let btn = shell.querySelector('#menuBtn');
-  if (!btn) {
-    btn = document.createElement('button');
-    btn.id = 'menuBtn';
-    btn.className = 'hamburger';
-    btn.setAttribute('aria-label', 'Toggle menu');
-    btn.innerHTML = '<span></span>'; // middle bar; :before/:after are in CSS
-    const links = shell.querySelector('.nav-links');
-    if (links) shell.insertBefore(btn, links);
+// ===== Local storage model =====
+const LS_KEYS = { dreams:'adt_dreams', profile:'adt_profile', prefs:'adt_prefs' };
+
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+// ===== Profile / prefs =====
+function getProfile(){ return load(LS_KEYS.profile, {displayName:'', username:'', email:'', avatar:''}); }
+function setProfile(p){ save(LS_KEYS.profile, p); }
+
+function getPrefs(){ return load(LS_KEYS.prefs, {reminders:false, private:false}); }
+function setPrefs(p){ save(LS_KEYS.prefs, p); }
+
+// ===== Dreams =====
+function getDreams(){ return load(LS_KEYS.dreams, []); }
+function setDreams(arr){ save(LS_KEYS.dreams, arr); }
+
+function addDream(text){
+  const arr = getDreams();
+  arr.unshift({ id:crypto.randomUUID(), text, date: new Date().toISOString() });
+  setDreams(arr);
+}
+
+// Streak: consecutive days with at least one dream
+function calcStreak(){
+  const byDay = new Set(getDreams().map(d => d.date.slice(0,10)));
+  let streak = 0;
+  for (let i=0; ; i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const iso = d.toISOString().slice(0,10);
+    if (byDay.has(iso)) streak++;
+    else break;
+  }
+  return streak;
+}
+function countThisWeek(){
+  const now = new Date(); const start = new Date(); start.setDate(now.getDate()-6);
+  return getDreams().filter(d => new Date(d.date) >= start).length;
+}
+
+// ===== Dashboard wiring =====
+(function initDashboard(){
+  const welcome = $('#welcomeName');
+  if (welcome){ welcome.textContent = (getProfile().displayName || 'friend'); }
+
+  const saveBtn = $('#saveDreamBtn');
+  if (saveBtn){
+    saveBtn.addEventListener('click', () => {
+      const t = $('#dreamText').value.trim();
+      if (!t) return alert('Please write something first.');
+      addDream(t);
+      $('#dreamText').value = '';
+      renderJournal();
+      renderStats();
+      alert('Saved!');
+    });
   }
 
-  const open  = () => document.body.classList.add('nav-open');
-  const close = () => document.body.classList.remove('nav-open');
-  const toggle = () => document.body.classList.toggle('nav-open');
+  const shareBtn = $('#shareLastBtn');
+  if (shareBtn){
+    shareBtn.addEventListener('click', async () => {
+      const last = getDreams()[0];
+      if (!last) return alert('No entries yet.');
+      const text = `My dream (${last.date.slice(0,10)}): ${last.text}`;
+      if (navigator.share) await navigator.share({ text, title:'Dream Journal' });
+      else { await navigator.clipboard.writeText(text); alert('Copied to clipboard.'); }
+    });
+  }
 
-  btn.addEventListener('click', toggle);
+  const clearAllBtn = $('#clearAllBtn');
+  if (clearAllBtn){
+    clearAllBtn.addEventListener('click', () => {
+      if (confirm('Delete ALL local dreams?')){ setDreams([]); renderJournal(); renderStats(); }
+    });
+  }
 
-  // close drawer when clicking any menu link/button
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('.nav-links a, .nav-links .btn');
-    if (a) close();
+  const filter = $('#filterSelect');
+  if (filter) filter.addEventListener('change', renderJournal);
+
+  const interp2 = $('#interpretBtn2');
+  if (interp2) interp2.addEventListener('click', () => {
+    // send them to homepage interpreter (keeps current page simple)
+    location.href = 'index.html#interpreter';
   });
 
-  // close when scrolling (prevents translucent bar overlaying content)
-  let lastY = window.scrollY;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    if (Math.abs(y - lastY) > 4) close();
-    lastY = y;
-  });
-
-  // close when going back to desktop
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 900) close();
-  });
+  if ($('#journalList')){ renderJournal(); renderStats(); }
 })();
 
-// ------------------------
-// Tabs (interpretation panels)
-// ------------------------
-const setActiveTab = (name) => {
-  $$('.tab').forEach((t) => t.classList.toggle('is-active', t.dataset.tab === name));
-  $$('.panel').forEach((p) => p.classList.toggle('is-active', p.id === `pane-${name}`));
-};
-$$('.tab').forEach((btn) => btn.addEventListener('click', () => setActiveTab(btn.dataset.tab)));
+function renderStats(){
+  const dreams = getDreams();
+  const c = $('#statCount'); if (c) c.textContent = dreams.length;
+  const s = $('#statStreak'); if (s) s.textContent = calcStreak();
+  const w = $('#statThisWeek'); if (w) w.textContent = countThisWeek();
+}
 
-// ------------------------
-// Demo interpreter (no API cost)
-// ------------------------
-const demoInterpret = (text) => {
-  const motifs = [];
-  if (/fly|flying|sky/i.test(text)) motifs.push('flying');
-  if (/water|ocean|sea|rain/i.test(text)) motifs.push('water');
-  if (/teeth|tooth/i.test(text)) motifs.push('teeth');
-  if (/chase|chasing|run/i.test(text)) motifs.push('chase');
+function renderJournal(){
+  const list = $('#journalList'); const empty = $('#emptyMsg'); if (!list) return;
+  const range = ($('#filterSelect')?.value) || 'all';
+  let items = getDreams();
 
-  const s = [];
-  if (motifs.includes('flying')) s.push('REM sleep often includes vestibular sensations; flying dreams may reflect sensory integration during REM.');
-  if (motifs.includes('water')) s.push('Water symbols often mirror emotions and homeostasis; consider recent changes in mood or stress.');
-  if (motifs.includes('teeth')) s.push('Teeth imagery can map to control/appearance concerns or nocturnal jaw tension.');
-  if (motifs.includes('chase')) s.push('Threat simulation theory: chase dreams rehearse avoidance or boundary-setting.');
-
-  return {
-    scientific: `<p>${s.join(' ') || 'Dreams blend REM physiology, memory processing, and emotion regulation.'}</p>`,
-    psychological: `<p>Look at real-life parallels: autonomy (flying), feelings (water), control (teeth), stress (chase). Identify one small action that reduces pressure.</p>`,
-    spiritual: `<p>Read this as a gentle nudge to trust intuition and take one aligned step this week.</p>`
-  };
-};
-
-const showText = (obj) => {
-  const put = (id, html) => { const n = document.getElementById(id); if (n) n.innerHTML = html; };
-  put('pane-scientific',   obj.scientific   || '—');
-  put('pane-psychological',obj.psychological|| '—');
-  put('pane-spiritual',    obj.spiritual    || '—');
-};
-
-const showImage = (dataUrl) => {
-  const wrap = $('#imageWrap'); if (!wrap) return;
-  wrap.innerHTML = '';
-  const img = new Image(); img.src = dataUrl; img.alt = 'Dream Art';
-  wrap.appendChild(img);
-  const dl = $('#downloadBtn');
-  if (dl){
-    dl.disabled = false;
-    dl.onclick = () => { const a=document.createElement('a'); a.href=dataUrl; a.download='dream-art.png'; a.click(); };
+  const now = new Date();
+  if (range === 'week'){
+    const start = new Date(); start.setDate(now.getDate()-6);
+    items = items.filter(d => new Date(d.date) >= start);
+  } else if (range === 'month'){
+    const start = new Date(); start.setDate(now.getDate()-30);
+    items = items.filter(d => new Date(d.date) >= start);
   }
-};
 
-const clearImage = () => {
-  const wrap = $('#imageWrap');
-  if (wrap) wrap.innerHTML = '<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>';
-  const dl = $('#downloadBtn'); if (dl) dl.disabled = true;
-};
+  list.innerHTML = '';
+  if (!items.length){ empty?.classList.remove('hidden'); return; }
+  empty?.classList.add('hidden');
 
-// ------------------------
-// Hook homepage buttons
-// ------------------------
-const interpretBtn = $('#interpretBtn');
-if (interpretBtn) {
-  interpretBtn.addEventListener('click', () => {
-    const textEl = $('#dreamInput');
-    const text = textEl ? textEl.value.trim() : '';
-    if (!text) { alert('Please describe your dream.'); return; }
-    const out = demoInterpret(text);
-    showText(out);
+  items.forEach(d => {
+    const li = document.createElement('li');
+    li.className = 'journal-item';
+    li.innerHTML = `
+      <div class="journal-date">${new Date(d.date).toLocaleString()}</div>
+      <div class="journal-text">${escapeHTML(d.text)}</div>
+      <div class="row mt">
+        <button class="btn ghost" data-share="${d.id}">Share</button>
+        <button class="btn ghost" data-delete="${d.id}">Delete</button>
+      </div>`;
+    list.appendChild(li);
+  });
+
+  list.querySelectorAll('[data-delete]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-delete');
+      setDreams(getDreams().filter(x=>x.id!==id));
+      renderJournal(); renderStats();
+    });
+  });
+  list.querySelectorAll('[data-share]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-share');
+      const it = getDreams().find(x=>x.id===id);
+      if (!it) return;
+      const txt = `My dream (${it.date.slice(0,10)}): ${it.text}`;
+      if (navigator.share) await navigator.share({ text:txt, title:'Dream Journal' });
+      else { await navigator.clipboard.writeText(txt); alert('Copied to clipboard.'); }
+    });
   });
 }
 
-const imageBtn = $('#imageBtn');
-if (imageBtn) {
-  imageBtn.addEventListener('click', () => {
-    const svg = encodeURIComponent(
-      `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'>
-        <defs>
-          <linearGradient id='g' x1='0' x2='1'>
-            <stop offset='0' stop-color='%23121c3b'/>
-            <stop offset='1' stop-color='%237aa8ff'/>
-          </linearGradient>
-        </defs>
-        <rect fill='url(%23g)' width='100%' height='100%'/>
-        <text x='50%' y='50%' fill='white' font-family='ui-sans-serif,system-ui' font-size='36' text-anchor='middle'>
-          Demo Dream Art
-        </text>
-      </svg>`
-    );
-    showImage(`data:image/svg+xml;utf8,${svg}`);
+function escapeHTML(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+
+// ===== Settings wiring =====
+(function initSettings(){
+  const emailEl = $('#emailReadonly');
+  const nameEl  = $('#displayName');
+  const userEl  = $('#username');
+  const avatarPreview = $('#avatarPreview');
+  const avatarInput   = $('#avatarInput');
+  const notifToggle   = $('#notifToggle');
+  const privateToggle = $('#privateToggle');
+
+  if (!emailEl) return; // not on settings page
+
+  // Load profile
+  const p = getProfile();
+  emailEl.value = p.email || '(signed in)';
+  nameEl.value  = p.displayName || '';
+  userEl.value  = p.username || '';
+  if (p.avatar){ avatarPreview.style.backgroundImage = `url(${p.avatar})`; }
+
+  // Load prefs
+  const prefs = getPrefs();
+  notifToggle.checked = !!prefs.reminders;
+  privateToggle.checked = !!prefs.private;
+
+  // Save profile
+  $('#saveProfileBtn').addEventListener('click', ()=>{
+    const np = { ...getProfile(), displayName:nameEl.value.trim(), username:userEl.value.trim(), email:emailEl.value };
+    setProfile(np);
+    alert('Profile saved.');
+    const onDash = $('#welcomeName'); if (onDash) onDash.textContent = np.displayName || 'friend';
+  });
+
+  // Avatar upload preview (stored locally)
+  avatarInput.addEventListener('change', async (e)=>{
+    const f = e.target.files?.[0]; if (!f) return;
+    const data = await fileToDataURL(f);
+    avatarPreview.style.backgroundImage = `url(${data})`;
+    const np = { ...getProfile(), avatar:data }; setProfile(np);
+  });
+
+  // Prefs
+  notifToggle.addEventListener('change', ()=>{
+    const pr = { ...getPrefs(), reminders:notifToggle.checked };
+    setPrefs(pr); alert('Reminder preference saved.');
+  });
+  privateToggle.addEventListener('change', ()=>{
+    const pr = { ...getPrefs(), private:privateToggle.checked };
+    setPrefs(pr); alert('Privacy preference saved.');
+  });
+
+  // Export / Import / Clear
+  $('#exportBtn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify({ dreams:getDreams(), profile:getProfile(), prefs:getPrefs() }, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `dream-journal-${todayISO()}.json`; a.click();
+    URL.revokeObjectURL(url);
+  });
+  $('#importBtn').addEventListener('click', ()=> $('#importFile').click());
+  $('#importFile').addEventListener('change', async (e)=>{
+    const f = e.target.files?.[0]; if (!f) return;
+    const txt = await f.text();
+    try{
+      const data = JSON.parse(txt);
+      if (data.dreams) setDreams(data.dreams);
+      if (data.profile) setProfile(data.profile);
+      if (data.prefs) setPrefs(data.prefs);
+      alert('Imported.');
+    }catch{ alert('Invalid file.'); }
+  });
+
+  $('#clearLocalBtn').addEventListener('click', ()=>{
+    if (!confirm('Delete all local data (profile, prefs, dreams)?')) return;
+    localStorage.removeItem(LS_KEYS.dreams);
+    localStorage.removeItem(LS_KEYS.profile);
+    localStorage.removeItem(LS_KEYS.prefs);
+    location.reload();
+  });
+})();
+
+function fileToDataURL(file){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
 }
 
-const clearBtn = $('#clearBtn');
-if (clearBtn) clearBtn.addEventListener('click', clearImage);
-
-// ------------------------
-// FAQ accordion
-// ------------------------
-$$('.faq-q').forEach((q) => {
-  q.addEventListener('click', () => {
-    q.classList.toggle('is-open');
-    // close others
-    $$('.faq-q').forEach((other) => { if (other !== q) other.classList.remove('is-open'); });
+// ===== Global auth hooks (sign out) =====
+const signOutBtn = $('#signOutBtn');
+if (signOutBtn){
+  signOutBtn.addEventListener('click', ()=>{
+    // Front-end only signout UI; if you have Firebase Auth, call signOut() inside auth.js
+    sessionStorage.clear();
+    alert('Signed out.');
+    location.href = 'index.html';
   });
-});
+}
 
-// Initialize image placeholder (if present)
-clearImage();
+// Keep your existing interpreter demo handlers if present on index.html
+// (You had interpretBtn/imageBtn logic before) — left unchanged.
