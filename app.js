@@ -256,5 +256,115 @@ if (signOutBtn){
   });
 }
 
-// Keep your existing interpreter demo handlers if present on index.html
-// (You had interpretBtn/imageBtn logic before) — left unchanged.
+// ===================
+// ADDED: Interpreter + Dream Art demo (no backend required)
+// Keeps your old features intact
+// ===================
+
+// Tabs support (if present on page)
+const setActiveTab = (name) => {
+  $$('.tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === name));
+  $$('.panel').forEach(p => p.classList.toggle('is-active', p.id === `pane-${name}`));
+};
+$$('.tab').forEach(btn => btn.addEventListener('click', () => setActiveTab(btn.dataset.tab)));
+
+// Simple local interpreter
+function interpretDemo(text) {
+  const motifs = [];
+  const addIf = (re, tag) => re.test(text) && motifs.push(tag);
+
+  addIf(/\bfly(?:ing)?\b|sky|float/i, 'flying');
+  addIf(/\bwater|ocean|sea|rain|river|wave/i, 'water');
+  addIf(/\bteeth?\b|tooth|dentist/i, 'teeth');
+  addIf(/\bchase|chasing|run|running|escape/i, 'chase');
+  addIf(/\bplane|airplane|crash|fall/i, 'flight');
+
+  const sci = [];
+  if (motifs.includes('flying') || motifs.includes('flight'))
+    sci.push('REM sleep can include vestibular sensations—feeling of motion or flight—related to brainstem activity.');
+  if (motifs.includes('water'))
+    sci.push('Water often maps to interoception (body state) and emotion processing during REM.');
+  if (motifs.includes('teeth'))
+    sci.push('Teeth imagery can reflect somatic input (jaw tension) and concerns about control/appearance.');
+  if (motifs.includes('chase'))
+    sci.push('Threat-simulation theory: chase scenes rehearse avoidance and boundary-setting.');
+  if (motifs.includes('flight'))
+    sci.push('Crash/fall themes are common when stress or uncertainty rises; the brain simulates loss-of-control scenarios.');
+  if (!sci.length) sci.push('Dreams blend memory, emotion regulation, and REM physiology.');
+
+  const psych = 'Look for real-life parallels. Ask: What felt out of control? Choose one 5-minute action to reduce stress.';
+  const spirit = 'Treat this dream as a nudge to ground yourself; write one sentence intention for tomorrow morning.';
+
+  return {
+    scientific: `<p>${sci.join(' ')}</p>`,
+    psychological: `<p>${psych}</p>`,
+    spiritual: `<p>${spirit}</p>`
+  };
+}
+
+function showTextPanels(obj){
+  const put = (id, html) => { const n = document.getElementById(id); if (n) n.innerHTML = html; };
+  put('pane-scientific', obj.scientific || '—');
+  put('pane-psychological', obj.psychological || '—');
+  put('pane-spiritual', obj.spiritual || '—');
+  setActiveTab('scientific');
+}
+
+// Dream art preview (SVG → data URL)
+function showImage(dataUrl){
+  const wrap = $('#imageWrap'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const img = new Image(); img.src = dataUrl; img.alt = 'Dream Art'; wrap.appendChild(img);
+  const dl = $('#downloadBtn');
+  if (dl){
+    dl.disabled = false;
+    dl.onclick = () => { const a=document.createElement('a'); a.href=dataUrl; a.download='dream-art.png'; a.click(); };
+  }
+}
+function clearImage(){
+  const wrap = $('#imageWrap');
+  if (wrap) wrap.innerHTML = '<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>';
+  const dl = $('#downloadBtn'); if (dl) dl.disabled = true;
+}
+
+// Hook homepage controls if they exist
+const interpretBtn = $('#interpretBtn');
+if (interpretBtn){
+  interpretBtn.addEventListener('click', ()=>{
+    const text = ($('#dreamInput')?.value || '').trim();
+    if (!text) return alert('Please describe your dream first.');
+    const out = interpretDemo(text);
+    showTextPanels(out);
+  });
+}
+
+const imageBtn = $('#imageBtn');
+if (imageBtn){
+  imageBtn.addEventListener('click', ()=>{
+    const text = ($('#dreamInput')?.value || '').trim();
+    const n = Math.max(1, Math.min(99, text.length % 100));
+    const svg = `
+      <svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'>
+        <defs>
+          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0' stop-color='#121c3b'/>
+            <stop offset='1' stop-color='#7aa8ff'/>
+          </linearGradient>
+          <filter id='glow'><feGaussianBlur stdDeviation='8' result='b'/><feMerge><feMergeNode in='b'/><feMergeNode in='SourceGraphic'/></feMerge></filter>
+        </defs>
+        <rect fill='url(#g)' width='100%' height='100%'/>
+        <g filter='url(#glow)' opacity='0.85'>
+          <circle cx='${200 + n*7}' cy='${160 + n*4}' r='${120 + n}' fill='#a7c4ff'/>
+          <circle cx='${760 - n*3}' cy='${380 - n*2}' r='${90 + n/2}' fill='#7aa8ff'/>
+        </g>
+        <text x='50%' y='92%' fill='#e9f0ff' font-family='ui-sans-serif, system-ui' font-size='28' text-anchor='middle'>Dream Art (demo)</text>
+      </svg>`;
+    showImage(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+  });
+}
+
+const clearBtn = $('#clearBtn');
+if (clearBtn) clearBtn.addEventListener('click', clearImage);
+
+// Init default state for art box if it's on the page
+clearImage();
