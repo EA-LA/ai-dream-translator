@@ -3,321 +3,128 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0a1026" />
   <title>Settings — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* ===== Page-specific polish (keeps your global CSS intact) ===== */
-    :root{
-      --panel:#0f1322;
-      --panel2:#0b0f1c;
-      --line:#1e2540;
-      --muted:#aab0c3;
-      --ok:#7CFF7C;
-      --accent:#2eb9ff;
-      --accent2:#18f7c2;
-      --radius:14px;
-    }
-    .settings-grid{
-      display:grid; gap:18px;
-      grid-template-columns: 1fr;
-    }
-    @media(min-width: 980px){
-      .settings-grid{
-        grid-template-columns: repeat(12, 1fr);
-      }
-      .col-4{ grid-column: span 4; }
-      .col-6{ grid-column: span 6; }
-      .col-8{ grid-column: span 8; }
-      .col-12{ grid-column: span 12; }
-    }
-    .card.pro{ background: linear-gradient(180deg, var(--panel), var(--panel2)); border:1px solid var(--line); border-radius: var(--radius); }
-    .card.headpad{ padding-top: 16px; }
-    .subtle{ color: var(--muted); }
-    .row.between{ display:flex; align-items:center; justify-content:space-between; gap:12px }
-    .pill{ font-size:12px; border:1px solid var(--line); padding:4px 8px; border-radius:999px; background:#121733; color:#cbd3ea }
-    .big{ font-size:32px; font-weight:800 }
-    .progress{
-      width:100%; height:10px; border-radius:999px; border:1px solid var(--line);
-      background:#0c1126; position:relative; overflow:hidden;
-    }
-    .progress > i{
-      position:absolute; left:0; top:0; bottom:0; width:40%;
-      background: linear-gradient(90deg, var(--accent2), var(--accent));
-      border-radius:999px;
-      box-shadow: 0 0 18px rgba(24,247,194,.25);
-    }
-    .list{ list-style:none; padding:0; margin:0 }
-    .list li{ display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px dashed rgba(255,255,255,.08) }
-    .list li:first-child{ border-top:none }
-    .check{ color: var(--ok); font-weight:900 }
-    .right{ text-align:right }
-    details.faq{ border:1px solid var(--line); border-radius:12px; background:#111633; padding:14px 16px }
-    details.faq + details.faq{ margin-top:10px }
-    summary{ cursor:pointer; font-weight:700; }
-    .mini{ font-size:12px; color: var(--muted) }
-    .ghost-link{ color:#dfe6ff; text-decoration: underline dotted 1px }
-  </style>
 </head>
 <body>
-  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
-
+  <!-- NAV -->
   <nav class="nav">
-    <div class="wrap nav-in">
-      <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
-      <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="settings.html" class="active">Settings</a>
-        <a href="pricing.html">Upgrade</a>
-        <button class="btn ghost" id="signOutBtn">Sign out</button>
-      </div>
-      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span></button>
+    <a class="brand" href="index.html">
+      <span class="logo"></span>
+      <span>AI Dream Translator</span>
+    </a>
+
+    <button id="hamburger" class="hamburger" aria-label="Menu"><span></span></button>
+
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="settings.html" class="active">Settings</a>
+      <a href="pricing.html" class="btn-light">Upgrade</a>
+      <button id="signOutBtn" class="btn-light">Sign out</button>
     </div>
   </nav>
 
-  <header class="wrap hero">
-   
-  </header>
+  <!-- PAGE -->
+  <main class="container page">
+    <!-- compact header -->
+    <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <h1 class="h1" style="font-size:18px; font-weight:800;">Settings</h1>
+    </div>
 
-  <main class="wrap settings-grid">
-    <!-- Your plan -->
-    <section class="card pro col-4 headpad">
-      <div class="row between">
-        <h2 style="margin:6px 0">Your plan</h2>
-        <span id="planBadge" class="pill">Free</span>
+    <!-- TOP ROW: plan / cycle / billing -->
+    <section class="card-grid">
+      <div class="card">
+        <h2>Your plan</h2>
+        <p class="small">Free / forever</p>
+        <ul style="margin-top:10px; line-height:1.7;">
+          <li>2 interpretations / day</li>
+          <li>1 dream art / day</li>
+          <li>Basic symbolism</li>
+          <li>Local history</li>
+        </ul>
+        <a href="pricing.html" class="btn" style="margin-top:12px;">Upgrade plan</a>
       </div>
 
-      <div class="row between" style="margin:6px 0 2px">
-        <div class="big" id="planPrice">$0</div>
-        <div class="subtle" id="planBilling">/ forever</div>
+      <div class="card">
+        <h2>Current cycle</h2>
+        <p class="small">Usage estimates only (exact counts show on Dashboard after actions).</p>
+        <div class="stats" style="margin-top:12px;">
+          <div class="stat-box">
+            <h3>Interpretations used</h3>
+            <p>0 / 60</p>
+          </div>
+          <div class="stat-box">
+            <h3>Dream art used</h3>
+            <p>0 / 30</p>
+          </div>
+        </div>
       </div>
 
-      <ul class="list" style="margin-top:10px">
-        <li><span class="check">✔</span><div id="planFeat1">2 interpretations / day</div></li>
-        <li><span class="check">✔</span><div id="planFeat2">1 dream art / day</div></li>
-        <li><span class="check">✔</span><div id="planFeat3">Basic symbolism</div></li>
-        <li><span class="check">✔</span><div id="planFeat4">Local history</div></li>
-      </ul>
-
-      <div class="row between" style="margin-top:14px">
-        <a class="btn ghost" href="pricing.html">Upgrade plan</a>
-        <a class="mini ghost-link" href="pricing.html">See all plans</a>
+      <div class="card">
+        <h2>Billing &amp; payment</h2>
+        <p class="small">Status: Free (no billing)</p>
+        <div class="row mt">
+          <a class="btn-light" href="pricing.html">Manage plan</a>
+          <a class="btn-light" href="pricing.html">Billing FAQ</a>
+        </div>
       </div>
     </section>
 
-    <!-- Current cycle -->
-    <section class="card pro col-4 headpad">
-      <h2 style="margin:6px 0 10px">Current cycle</h2>
+    <!-- PROFILE / PREFS -->
+    <section class="card-grid" style="margin-top:20px;">
+      <!-- Profile -->
+      <div class="card">
+        <h2>Profile</h2>
 
-      <div class="row between">
-        <div>
-          <div class="subtle mini">Interpretations used</div>
-          <div><strong id="usedInterp">0</strong> / <span id="limitInterp">60</span> this month</div>
-        </div>
-        <div class="right">
-          <div class="subtle mini">Resets</div>
-          <div id="resetDate">1st of next month</div>
-        </div>
-      </div>
-      <div class="progress" style="margin-top:10px"><i id="barInterp" style="width:0%"></i></div>
+        <label class="label">Avatar</label>
+        <div id="avatarPreview" style="width:64px; height:64px; border-radius:12px; background:#0f1534; background-size:cover; background-position:center;"></div>
+        <input id="avatarInput" type="file" accept="image/*" style="margin-top:10px;" />
 
-      <div class="row between" style="margin-top:18px">
-        <div>
-          <div class="subtle mini">Dream art used</div>
-          <div><strong id="usedArt">0</strong> / <span id="limitArt">30</span> this month</div>
-        </div>
-        <div class="right">
-          <div class="subtle mini">&nbsp;</div>
-          <div>&nbsp;</div>
-        </div>
-      </div>
-      <div class="progress" style="margin-top:10px"><i id="barArt" style="width:0%"></i></div>
+        <label class="label mt" for="displayName">Display name</label>
+        <input id="displayName" class="input" type="text" placeholder="Your name" />
 
-      <p class="mini" style="margin-top:12px">Usage estimates only. Exact counts show on your dashboard after actions.</p>
-    </section>
+        <label class="label mt" for="username">Username</label>
+        <input id="username" class="input" type="text" placeholder="@username" />
 
-    <!-- Billing & payment -->
-    <section class="card pro col-4 headpad">
-      <h2 style="margin:6px 0 10px">Billing & payment</h2>
-      <div class="row between">
-        <div>
-          <div class="subtle mini">Status</div>
-          <div id="billStatus">Free (no billing)</div>
-        </div>
-        <div class="right">
-          <div class="subtle mini">Next payment</div>
-          <div id="nextPayment">—</div>
-        </div>
+        <label class="label mt" for="emailReadonly">Email</label>
+        <input id="emailReadonly" class="input" type="text" readonly value="(signed in)" />
+
+        <button id="saveProfileBtn" class="btn" style="margin-top:12px;">Save profile</button>
       </div>
 
-      <ul class="list" style="margin-top:10px">
-        <li><span class="check">✔</span><div>Cancel anytime</div></li>
-        <li><span class="check">✔</span><div>Email receipts</div></li>
-        <li><span class="check">✔</span><div>Secure checkout</div></li>
-      </ul>
+      <!-- Preferences -->
+      <div class="card">
+        <h2>Preferences</h2>
 
-      <div class="row between" style="margin-top:14px">
-        <a class="btn ghost" href="pricing.html">Manage plan</a>
-        <a class="mini ghost-link" href="pricing.html#faq">Billing FAQ</a>
-      </div>
-    </section>
-
-    <!-- Profile -->
-    <section class="card pro col-6">
-      <h2>Profile</h2>
-
-      <div class="row">
-        <div class="avatar" id="avatarPreview"></div>
-        <div>
-          <label class="label">Avatar</label>
-          <input type="file" accept="image/*" id="avatarInput" class="input" />
-          <p class="small subtle">We store avatar locally for now.</p>
-        </div>
-      </div>
-
-      <label class="label mt">Display name</label>
-      <input class="input" id="displayName" placeholder="Your name" />
-
-      <label class="label mt">Username</label>
-      <input class="input" id="username" placeholder="@username" />
-
-      <label class="label mt">Email</label>
-      <input class="input" id="emailReadonly" disabled />
-
-      <div class="row mt2">
-        <button class="btn primary" id="saveProfileBtn">Save profile</button>
-      </div>
-    </section>
-
-    <!-- Preferences / Danger zone -->
-    <section class="card pro col-6">
-      <h2>Preferences</h2>
-
-      <div class="row">
-        <label class="switch">
-          <input type="checkbox" id="notifToggle" />
-          <span class="slider"></span>
+        <label class="label mt">Reminders</label>
+        <label style="display:flex;align-items:center;gap:10px;">
+          <input id="notifToggle" type="checkbox" />
+          <span>Send a daily reminder to write last night’s dream.</span>
         </label>
-        <div>
-          <div><strong>Reminders</strong></div>
-          <div class="small subtle">Send a daily reminder to write last night’s dream.</div>
-        </div>
-      </div>
 
-      <div class="row mt2">
-        <label class="switch">
-          <input type="checkbox" id="privateToggle" />
-          <span class="slider"></span>
+        <label class="label mt">Private mode</label>
+        <label style="display:flex;align-items:center;gap:10px;">
+          <input id="privateToggle" type="checkbox" />
+          <span>Hide sharing buttons and blur entries on load.</span>
         </label>
-        <div>
-          <div><strong>Private mode</strong></div>
-          <div class="small subtle">Hide sharing buttons and blur entries on load.</div>
+
+        <div class="row mt">
+          <button id="exportBtn" class="btn-light">Export journal (.json)</button>
+          <button id="importBtn" class="btn-light">Import</button>
+          <input id="importFile" type="file" accept="application/json" class="hidden" />
+        </div>
+
+        <div class="mt2">
+          <h3 style="font-size:14px; margin-bottom:8px;">Danger zone</h3>
+          <button id="clearLocalBtn" class="btn-light">Delete all local data</button>
         </div>
       </div>
-
-      <div class="row mt2">
-        <button class="btn ghost" id="exportBtn">Export journal (.json)</button>
-        <button class="btn ghost" id="importBtn">Import</button>
-        <input id="importFile" type="file" accept="application/json" class="hidden" />
-      </div>
-
-      <hr class="mt2" style="border-color:rgba(255,255,255,.08)">
-
-      <h3 class="mt2">Danger zone</h3>
-      <p class="small subtle">These actions cannot be undone.</p>
-      <div class="row">
-        <button class="btn" id="clearLocalBtn" style="border-color:rgba(255,100,100,.4); color:#ffdede; background:transparent">Delete all local data</button>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="col-12">
-      <h2 style="margin:14px 0 8px">FAQ</h2>
-      <details class="faq" id="faq">
-        <summary>How are limits counted?</summary>
-        <div class="subtle">Each “Interpret Dream” counts as one interpretation. Each generated image counts as one dream-art credit.</div>
-      </details>
-      <details class="faq">
-        <summary>Do you store my dreams?</summary>
-        <div class="subtle">Free stores locally in your browser. Paid plans can sync to your account and you can delete entries anytime. “Private mode” keeps everything on your device.</div>
-      </details>
-      <details class="faq">
-        <summary>Can I change plans anytime?</summary>
-        <div class="subtle">Yes. You can switch monthly ↔ yearly or upgrade/downgrade anytime. Changes apply to the next cycle.</div>
-      </details>
-      <details class="faq">
-        <summary>Is this therapy or medical advice?</summary>
-        <div class="subtle">No—this is educational reflection. For mental health concerns, please consult a professional.</div>
-      </details>
     </section>
   </main>
 
-  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+  <footer>© <span id="year"></span> AI Dream Translator</footer>
 
-  <!-- Auth & App -->
   <script type="module" src="auth.js"></script>
   <script src="app.js" defer></script>
-
-  <!-- Page logic: reads plan from localStorage and computes simple usage bars -->
-  <script>
-    // Footer year
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // --- Plan model (you can align these with pricing.html) ---
-    const plans = {
-      free:      { name:'Free',      price:'$0',   billing:'/ forever', interpPerMonth:60,  artPerMonth:30,
-                   feats:['2 interpretations / day','1 dream art / day','Basic symbolism','Local history'],
-                   billingStatus:'Free (no billing)', nextPayment:'—' },
-      lite:      { name:'Lite',      price:'$12',  billing:'/ month',   interpPerMonth:240, artPerMonth:90,
-                   feats:['8 interpretations / day','3 dream art / day','Psychological + Symbolic lens','Journal & tags'],
-                   billingStatus:'Active', nextPayment:'Auto each month' },
-      standard:  { name:'Standard',  price:'$28',  billing:'/ month',   interpPerMonth:9999, artPerMonth:300,
-                   feats:['Unlimited interpretations','10 HD dream art / day','All lenses','History search + filters'],
-                   billingStatus:'Active', nextPayment:'Auto each month' },
-      pro:       { name:'Pro',       price:'$100', billing:'/ month',   interpPerMonth:9999, artPerMonth:150,
-                   feats:['Everything in Standard','150 HD images / month','Voice-to-dream','Multilingual'],
-                   billingStatus:'Active', nextPayment:'Auto each month' }
-    };
-
-    // Read the selected plan (set this when user buys; for now, example)
-    const tier = (localStorage.getItem('adt_tier') || 'free').toLowerCase();
-    const plan = plans[tier] || plans.free;
-
-    // Update Plan card
-    document.getElementById('planBadge').textContent = plan.name;
-    document.getElementById('planPrice').textContent = plan.price;
-    document.getElementById('planBilling').textContent = plan.billing;
-    document.getElementById('planFeat1').textContent = plan.feats[0] || '';
-    document.getElementById('planFeat2').textContent = plan.feats[1] || '';
-    document.getElementById('planFeat3').textContent = plan.feats[2] || '';
-    document.getElementById('planFeat4').textContent = plan.feats[3] || '';
-    document.getElementById('billStatus').textContent = plan.billingStatus;
-    document.getElementById('nextPayment').textContent = plan.nextPayment;
-
-    // Simple usage (replace with your real counters later)
-    const usedInterp  = parseInt(localStorage.getItem('used_interp') || '0', 10);
-    const usedArt     = parseInt(localStorage.getItem('used_art') || '0', 10);
-    const limitInterp = plan.interpPerMonth === 9999 ?  '∞' : plan.interpPerMonth;
-    const limitArt    = plan.artPerMonth    === 9999 ?  '∞' : plan.artPerMonth;
-
-    document.getElementById('usedInterp').textContent = usedInterp;
-    document.getElementById('usedArt').textContent = usedArt;
-    document.getElementById('limitInterp').textContent = limitInterp;
-    document.getElementById('limitArt').textContent = limitArt;
-
-    // Progress bars (if infinite, show full bar)
-    const pctInterp = (plan.interpPerMonth === 9999) ? 100 : Math.min(100, Math.round((usedInterp / plan.interpPerMonth) * 100));
-    const pctArt    = (plan.artPerMonth    === 9999) ? 100 : Math.min(100, Math.round((usedArt / plan.artPerMonth) * 100));
-    document.getElementById('barInterp').style.width = pctInterp + '%';
-    document.getElementById('barArt').style.width = pctArt + '%';
-
-    // Reset date hint (1st of next month)
-    (function(){
-      const now = new Date();
-      const next = new Date(now.getFullYear(), now.getMonth()+1, 1);
-      const fmt = next.toLocaleDateString(undefined, { month:'short', day:'numeric' });
-      document.getElementById('resetDate').textContent = fmt;
-    })();
-  </script>
 </body>
 </html>
