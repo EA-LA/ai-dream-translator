@@ -368,3 +368,119 @@ if (clearBtn) clearBtn.addEventListener('click', clearImage);
 
 // Init default state for art box if it's on the page
 clearImage();
+// === Pro Account Menu (global) ===
+
+// Helper: read auth user from localStorage or window (fallbacks)
+function adtGetUser() {
+  const name = localStorage.getItem('adt_user_name') || (window._authUser && window._authUser.displayName) || null;
+  const email = localStorage.getItem('adt_user_email') || (window._authUser && window._authUser.email) || null;
+  return (email ? { name: name || (email.split('@')[0].toUpperCase()), email } : null);
+}
+
+// Helper: theme
+function adtApplyTheme(mode) {
+  // mode: 'system' | 'light' | 'dark'
+  localStorage.setItem('adt_theme', mode);
+  document.documentElement.dataset.theme = mode; // you can use [data-theme] in CSS if you want
+}
+(function initThemeFromStore(){
+  const mode = localStorage.getItem('adt_theme') || 'dark';
+  adtApplyTheme(mode);
+})();
+
+(function mountAccountMenu(){
+  const navLinks = document.querySelector('.nav .nav-links');
+  if (!navLinks) return;
+
+  const user = adtGetUser();
+  // If not logged in -> keep your existing nav (Sign in / Sign up buttons)
+  if (!user) return;
+
+  // Remove "Sign in" / "Sign up" if present
+  [...navLinks.querySelectorAll('a[href*="signin"], a[href*="signup"]')].forEach(a => a.remove());
+
+  // Create the button + menu
+  const wrap = document.createElement('div');
+  wrap.className = 'account-wrap';
+
+  wrap.innerHTML = `
+    <div class="account-btn" id="accBtn">
+      <div class="avatar" id="accAvatar"></div>
+      <span id="accName" style="font-weight:700">${(user.name || 'ACCOUNT').toUpperCase()}</span>
+      <span class="dot"></span>
+    </div>
+    <div class="account-menu" id="accMenu" role="menu" aria-hidden="true">
+      <div class="acc-header">
+        <div class="name" id="accHeaderName">${(user.name || 'USER').toUpperCase()}</div>
+        <div class="email" id="accHeaderEmail">${user.email}</div>
+      </div>
+
+      <div class="acc-item" id="accTheme"> <span>🌐 Theme</span> <span class="acc-right">›</span> </div>
+      <div class="acc-item" id="accManage"> <span>⚙️ Manage account</span> <span class="acc-right">settings</span> </div>
+      <div class="acc-item" id="accPricing"> <span>⚡ Pricing</span> <span class="acc-right">plans</span> </div>
+      <div class="acc-item" id="accContact"> <span>✉️ Contact us</span> <span class="acc-right">support</span> </div>
+      <div class="acc-item" id="accTerms"> <span>📄 Terms & Conditions</span> <span class="acc-right">legal</span> </div>
+      <div style="border-top:1px solid rgba(255,255,255,.06); margin:6px 0"></div>
+      <div class="acc-item" id="accLogout"> <span>↪ Log out</span></div>
+
+      <div class="acc-sub" id="accThemeSub">
+        <div class="acc-radio" data-theme="system"><span class="tick"></span><span>System</span></div>
+        <div class="acc-radio" data-theme="light"><span class="tick"></span><span>Light</span></div>
+        <div class="acc-radio" data-theme="dark"><span class="tick"></span><span>Dark</span></div>
+      </div>
+    </div>
+  `;
+  navLinks.appendChild(wrap);
+
+  // Avatar initial (simple letter)
+  const av = wrap.querySelector('#accAvatar');
+  const letter = (user.name || user.email || 'U').trim().charAt(0).toUpperCase();
+  av.textContent = letter;
+  av.style.display = 'grid'; av.style.placeItems = 'center'; av.style.fontWeight = '800'; av.style.color = '#cfe2ff';
+
+  // Open/close
+  const btn = wrap.querySelector('#accBtn');
+  const menu = wrap.querySelector('#accMenu');
+  const themeItem = wrap.querySelector('#accTheme');
+  const themeSub = wrap.querySelector('#accThemeSub');
+
+  const closeMenus = () => { menu.classList.remove('open'); themeSub.classList.remove('open'); };
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); menu.classList.toggle('open'); });
+  document.addEventListener('click', closeMenus);
+
+  themeItem.addEventListener('mouseenter', ()=> themeSub.classList.add('open'));
+  themeItem.addEventListener('mouseleave', ()=> themeSub.classList.remove('open'));
+  themeSub.addEventListener('mouseenter', ()=> themeSub.classList.add('open'));
+  themeSub.addEventListener('mouseleave', ()=> themeSub.classList.remove('open'));
+
+  // Theme radio state
+  const currentTheme = localStorage.getItem('adt_theme') || 'dark';
+  themeSub.querySelectorAll('.acc-radio').forEach(el=>{
+    if (el.dataset.theme === currentTheme) el.classList.add('active');
+    el.addEventListener('click', ()=>{
+      themeSub.querySelectorAll('.acc-radio').forEach(r=>r.classList.remove('active'));
+      el.classList.add('active');
+      adtApplyTheme(el.dataset.theme);
+    });
+  });
+
+  // Routes
+  wrap.querySelector('#accManage').addEventListener('click', ()=> location.href='/settings.html');
+  wrap.querySelector('#accPricing').addEventListener('click', ()=> location.href='/pricing.html');
+  wrap.querySelector('#accContact').addEventListener('click', ()=> location.href='/contact.html');
+  wrap.querySelector('#accTerms').addEventListener('click', ()=> location.href='/terms.html');
+
+  // Logout (works with your existing button if present)
+  const doSignOut = async () => {
+    // Try your existing sign-out button first
+    const existing = document.getElementById('signOutBtn');
+    if (existing) { existing.click(); return; }
+    // Fallback: clear local session markers
+    localStorage.removeItem('adt_user_name');
+    localStorage.removeItem('adt_user_email');
+    localStorage.removeItem('adt_tier');
+    location.href = '/signin.html';
+  };
+  wrap.querySelector('#accLogout').addEventListener('click', doSignOut);
+
+})();
