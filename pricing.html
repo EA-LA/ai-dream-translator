@@ -1,131 +1,317 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0a1026" />
-  <title>Pricing — AI Dream Translator</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing — AI Dream Translator</title>
+<meta name="description" content="Start free. Upgrade for unlimited dream interpretations, HD dream art, multi-lens insights, and more.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0b0f">
+
+<style>
+  :root{
+    --bg:#0b0c10;
+    --panel:#11131a;
+    --panel-2:#0e1016;
+    --line:#202431;
+    --line-2:#2b2f3e;
+    --text:#e9ecf2;
+    --muted:#a6aabb;
+    --accent:#2eb9ff;
+    --accent-2:#18f7c2;
+    --ok:#7CFF7C;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:
+    radial-gradient(1200px 700px at 110% -10%, rgba(24,247,194,.08), transparent 60%),
+    radial-gradient(700px 500px at -10% 0%, rgba(46,185,255,.08), transparent 60%),
+    var(--bg);
+    color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;}
+  a{color:var(--text); text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+
+  /* Header (simple—matches your site nav names) */
+  header{position:sticky;top:0;z-index:20;background:rgba(11,12,16,.65);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{height:64px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.2px}
+  .brand i{width:26px;height:26px;border-radius:8px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+  .links{display:flex;gap:18px;align-items:center;font-weight:600}
+  .btn-nav{padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#171a23}
+
+  main{padding:36px 0 80px}
+
+  /* Hero */
+  .hero h1{font-size:38px;line-height:1.05;margin:0 0 10px}
+  .hero p{color:var(--muted);max-width:780px}
+
+  /* Billing toggle */
+  .billing{margin:22px 0 18px;display:flex;gap:14px;align-items:center}
+  .pill{display:inline-flex;gap:12px;align-items:center;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--panel-2));padding:8px;border-radius:999px}
+  .switch{position:relative;width:110px;height:36px;border-radius:20px;background:#141824;border:1px solid var(--line);cursor:pointer}
+  .knob{position:absolute;top:3px;left:3px;width:50px;height:30px;border-radius:16px;background:#22283a;transition:all .18s ease}
+  .switch[data-mode="yearly"] .knob{left:57px}
+  .tag{font-size:12px;color:#b7bdd0;border:1px solid var(--line);padding:4px 8px;border-radius:999px;background:#131725}
+
+  /* Grid */
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
+  .col-3{grid-column:span 12}
+  .col-4{grid-column:span 12}
+  .col-12{grid-column:span 12}
+  @media(min-width:900px){
+    .col-3{grid-column:span 3}
+    .col-4{grid-column:span 4}
+  }
+
+  /* Card */
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .head{padding:18px 18px 0}
+  .badge{font-size:12px;border:1px solid var(--line-2);background:#151a25;padding:4px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+  .popular{position:absolute;right:16px;top:14px}
+  .price{font-size:34px;font-weight:800;margin:6px 0 4px}
+  .per{font-size:14px;color:var(--muted)}
+  .body{padding:14px 18px 18px}
+  ul.features{list-style:none;padding:0;margin:0;color:#d7d9e2}
+  ul.features li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px dashed #2a3142}
+  ul.features li:first-child{border-top:none}
+  .check{color:var(--ok);font-weight:900}
+  .btn{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#171a23;color:#fff;font-weight:700;cursor:pointer}
+  .btn.primary{background:linear-gradient(180deg,#e9eefb,#d6def7);color:#06102a}
+  .fine{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+
+  /* Comparison + FAQ */
+  .section-title{margin:28px 0 10px}
+  table{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:12px 14px;border-bottom:1px solid var(--line)}
+  th{background:#121622;color:#b9bfd3;font-size:12px;letter-spacing:.3px;text-align:left}
+
+  details{border:1px solid var(--line);border-radius:12px;background:#121622;padding:14px 16px}
+  details+details{margin-top:10px}
+  summary{cursor:pointer;font-weight:700}
+  details>div{color:#d6daea;margin-top:8px}
+
+  footer{border-top:1px solid var(--line);color:var(--muted);padding:22px 0 60px;margin-top:36px}
+</style>
 </head>
 <body>
-  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
-  <nav class="nav"><div class="wrap nav-in">
-    <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a class="active" href="pricing.html">Pricing</a>
-      <a href="contact.html">Contact</a>
-      <a href="signin.html" class="btn ghost">Sign in</a>
-      <a href="signin.html#signup" class="btn primary">Get started</a>
+<header>
+  <div class="wrap nav">
+    <div class="brand"><i></i><span>AI Dream Translator</span></div>
+    <nav class="links">
+      <a href="/index.html">Home</a>
+      <a href="/pricing.html" style="opacity:1;font-weight:700">Pricing</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/signin.html" class="btn-nav">Sign in</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Simple, fair pricing</h1>
+    <p>Start free. Upgrade when you want unlimited interpretations, HD dream art, deeper lenses, and private journaling tools.</p>
+
+    <!-- Billing toggle -->
+    <div class="billing">
+      <span class="tag">Yearly <strong style="color:#fff;margin-left:4px">20% off</strong></span>
+      <div class="pill">
+        <span>Yearly</span>
+        <div class="switch" id="billingSwitch" data-mode="monthly" aria-label="Toggle billing period">
+          <div class="knob"></div>
+        </div>
+        <span>Monthly</span>
+      </div>
     </div>
-  </div></nav>
+  </section>
 
-  <header class="wrap hero center">
-    <h1 class="h1">Simple, fair pricing</h1>
-    <p class="lead">Start free. Upgrade when you want unlimited interpretations and dream art.</p>
-    <p id="payMsg" class="small"></p>
-  </header>
-
-  <main class="wrap">
-    <div class="price-grid">
-      <section class="card price-card">
-        <h3>Free</h3>
-        <div class="price">$0</div>
-        <p class="small">Great to try it out</p>
-        <div class="mt">
-          <div class="li"><span class="dot"></span> 2 interpretations/day</div>
-          <div class="li"><span class="dot"></span> Demo dream art</div>
-          <div class="li"><span class="dot"></span> Basic tips</div>
+  <!-- Plans -->
+  <section>
+    <div class="grid">
+      <!-- Free -->
+      <div class="col-3">
+        <div class="card" style="position:relative">
+          <div class="head">
+            <div class="badge">Free</div>
+            <div class="price"><span data-price="free">$0</span> <span class="per">/forever</span></div>
+            <div class="per">No billing</div>
+          </div>
+          <div class="body">
+            <ul class="features">
+              <li><span class="check">✔</span><div>2 dream interpretations / day</div></li>
+              <li><span class="check">✔</span><div>1 dream art generation / day</div></li>
+              <li><span class="check">✔</span><div>Basic symbolism insights</div></li>
+              <li><span class="check">✔</span><div>Save to local history</div></li>
+              <li><span class="check">✔</span><div>Personal use license</div></li>
+            </ul>
+            <button class="btn" onclick="activateFree()">Get started</button>
+          </div>
         </div>
-        <div class="mt2"><a class="btn ghost" href="signin.html#signup">Get started</a></div>
-      </section>
+      </div>
 
-      <section class="card price-card" style="border-color:rgba(122,168,255,.45)">
-        <h3>Pro</h3>
-        <div class="price">$5.99<span class="small">/mo</span></div>
-        <p class="small">Most popular</p>
-        <div class="mt">
-          <div class="li"><span class="dot"></span> Unlimited interpretations</div>
-          <div class="li"><span class="dot"></span> HD dream art</div>
-          <div class="li"><span class="dot"></span> Dream history & search</div>
-          <div class="li"><span class="dot"></span> Priority support</div>
+      <!-- Lite -->
+      <div class="col-3">
+        <div class="card" style="position:relative">
+          <div class="head">
+            <div class="badge">Lite</div>
+            <div class="price">
+              <span class="js-price" data-monthly="12" data-yearly="10">$12</span>
+              <span class="per">/month</span>
+            </div>
+            <div class="per">Billed <span class="js-billing">monthly</span></div>
+          </div>
+          <div class="body">
+            <ul class="features">
+              <li><span class="check">✔</span><div>8 dream interpretations / day</div></li>
+              <li><span class="check">✔</span><div>3 dream art generations / day</div></li>
+              <li><span class="check">✔</span><div>Multi-lens: Psychological + Symbolic</div></li>
+              <li><span class="check">✔</span><div>Dream journal & tags</div></li>
+              <li><span class="check">✔</span><div>Email export (.txt)</div></li>
+              <li><span class="check">✔</span><div>Priority queue (lite)</div></li>
+              <li><span class="check">✔</span><div>Commercial-lite license</div></li>
+            </ul>
+            <button class="btn primary" onclick="checkout('lite')">Subscribe</button>
+            <div class="fine">20% off when billed yearly</div>
+          </div>
         </div>
-        <div class="mt2"><button class="btn primary" id="btnProMonthly">Upgrade</button></div>
-      </section>
+      </div>
 
-      <section class="card price-card">
-        <h3>Pro+</h3>
-        <div class="price">$49<span class="small">/yr</span></div>
-        <p class="small">2 months free</p>
-        <div class="mt">
-          <div class="li"><span class="dot"></span> Everything in Pro</div>
-          <div class="li"><span class="dot"></span> Yearly insights report</div>
-          <div class="li"><span class="dot"></span> Early access features</div>
+      <!-- Standard (Popular) -->
+      <div class="col-3">
+        <div class="card" style="position:relative; outline:1px solid var(--line-2)">
+          <div class="badge popular">POPULAR</div>
+          <div class="head">
+            <div class="badge">Standard</div>
+            <div class="price">
+              <span class="js-price" data-monthly="28" data-yearly="22">$28</span>
+              <span class="per">/month</span>
+            </div>
+            <div class="per">Billed <span class="js-billing">monthly</span></div>
+          </div>
+          <div class="body">
+            <ul class="features">
+              <li><span class="check">✔</span><div>Unlimited dream interpretations</div></li>
+              <li><span class="check">✔</span><div>10 dream art generations / day (HD)</div></li>
+              <li><span class="check">✔</span><div>All lenses: Psychological • Symbolic • Cultural • Spiritual</div></li>
+              <li><span class="check">✔</span><div>Private mode (local only, no cloud)</div></li>
+              <li><span class="check">✔</span><div>History search + filters</div></li>
+              <li><span class="check">✔</span><div>Weekly insights report (habits & themes)</div></li>
+              <li><span class="check">✔</span><div>Priority support</div></li>
+              <li><span class="check">✔</span><div>Commercial license</div></li>
+            </ul>
+            <button class="btn primary" onclick="checkout('standard')">Subscribe</button>
+            <div class="fine">20% off when billed yearly</div>
+          </div>
         </div>
-        <div class="mt2"><button class="btn ghost" id="btnProYearly">Go yearly</button></div>
-      </section>
+      </div>
+
+      <!-- Pro -->
+      <div class="col-3">
+        <div class="card" style="position:relative">
+          <div class="head">
+            <div class="badge">Pro</div>
+            <div class="price">
+              <span class="js-price" data-monthly="100" data-yearly="80">$100</span>
+              <span class="per">/month</span>
+            </div>
+            <div class="per">Billed <span class="js-billing">monthly</span></div>
+          </div>
+          <div class="body">
+            <ul class="features">
+              <li><span class="check">✔</span><div>Everything in Standard</div></li>
+              <li><span class="check">✔</span><div>150 HD dream art generations / month</div></li>
+              <li><span class="check">✔</span><div>Voice-to-dream (speak & auto-transcribe)</div></li>
+              <li><span class="check">✔</span><div>Custom prompts & style presets</div></li>
+              <li><span class="check">✔</span><div>Multilingual translations (EN + FA + ES + AR)</div></li>
+              <li><span class="check">✔</span><div>Team seat (2 included)</div></li>
+              <li><span class="check">✔</span><div>Early access to new models</div></li>
+              <li><span class="check">✔</span><div>Priority queue (max)</div></li>
+            </ul>
+            <button class="btn primary" onclick="checkout('pro')">Subscribe</button>
+            <div class="fine">20% off when billed yearly</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="col-12">
+        <div class="card" style="display:flex;flex-wrap:wrap;align-items:center;gap:18px;padding:18px;border-style:dashed">
+          <div class="badge">Enterprise</div>
+          <div style="flex:1;min-width:260px">Tailor a plan for organizations: increased limits, privacy & compliance options, SSO/SAML, dedicated support, and offline/private deployments.</div>
+          <button class="btn" style="max-width:220px" onclick="location.href='/contact.html'">Talk to sales</button>
+        </div>
+      </div>
     </div>
-  </main>
+  </section>
 
-  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+  <!-- FAQ -->
+  <section class="section-title">
+    <h3>FAQ</h3>
+    <details>
+      <summary>What counts toward the daily limits?</summary>
+      <div>Each “Interpret Dream” uses one interpretation. Each generated image uses one dream-art credit. Plans show how many you get.</div>
+    </details>
+    <details>
+      <summary>Do you store my dreams?</summary>
+      <div>Free stores locally in your browser. Paid plans can sync to your account and you can delete entries anytime. Private Mode keeps everything on your device.</div>
+    </details>
+    <details>
+      <summary>Can I switch between monthly and yearly?</summary>
+      <div>Yes—switch anytime. Yearly saves ~20% and applies to the next billing cycle.</div>
+    </details>
+    <details>
+      <summary>Is this therapy or medical advice?</summary>
+      <div>No—this is educational reflection. For mental health concerns, please consult a professional.</div>
+    </details>
+  </section>
+</main>
 
-  <!-- Firebase (to check login state only) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div>© <span id="y"></span> AI Dream Translator</div>
+    <div style="display:flex;gap:16px">
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBjoLNuLEFwEZURiZAj_O3q-YXu4kug2eM",
-      authDomain: "ai-dream-translator.firebaseapp.com",
-      projectId: "ai-dream-translator",
-      storageBucket: "ai-dream-translator.firebasestorage.app",
-      messagingSenderId: "684674852759",
-      appId: "1:684674852759:web:732de7d510e70187de06d2",
-      measurementId: "G-CPZLDSPPGK"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+<script>
+  // Year display
+  document.getElementById('y').textContent = new Date().getFullYear();
 
-    const payMsg = document.getElementById('payMsg');
-    const btnMonthly = document.getElementById('btnProMonthly');
-    const btnYearly  = document.getElementById('btnProYearly');
-
-    function requireLoginThen(action){
-      onAuthStateChanged(auth, (user) => {
-        if (!user) { window.location.href = "signin.html?next=pricing.html"; }
-        else { action(user); }
-      });
-    }
-
-    async function startCheckout({ yearly = false, user }){
-      try{
-        payMsg.textContent = "Creating secure checkout…";
-        const r = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            priceId: yearly ? "YEARLY" : null,
-            email: user?.email || null,
-            successUrl: `${window.location.origin}/success.html`,
-            cancelUrl: `${window.location.origin}/pricing.html`
-          })
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || "Checkout failed");
-        window.location.href = data.url;
-      } catch (e) {
-        payMsg.textContent = e.message || "Could not start checkout.";
-      }
-    }
-
-    btnMonthly?.addEventListener("click", () => {
-      requireLoginThen((user) => startCheckout({ yearly:false, user }));
+  // Billing toggle
+  const switchEl = document.getElementById('billingSwitch');
+  const prices = Array.from(document.querySelectorAll('.js-price'));
+  const billLabels = Array.from(document.querySelectorAll('.js-billing'));
+  function setMode(mode){
+    switchEl.setAttribute('data-mode', mode);
+    prices.forEach(p=>{
+      const m = p.getAttribute('data-monthly');
+      const y = p.getAttribute('data-yearly');
+      p.textContent = (mode==='yearly'? y : m);
     });
-    btnYearly?.addEventListener("click", () => {
-      requireLoginThen((user) => startCheckout({ yearly:true, user }));
-    });
-  </script>
+    billLabels.forEach(b=> b.textContent = (mode==='yearly' ? 'yearly' : 'monthly'));
+  }
+  setMode('monthly');
+  switchEl.addEventListener('click', ()=>{
+    const next = switchEl.getAttribute('data-mode')==='monthly' ? 'yearly' : 'monthly';
+    setMode(next);
+  });
 
-  <script src="app.js" defer></script>
+  // Stubs for actions (connect to your checkout later)
+  function activateFree(){
+    localStorage.setItem('adt_tier','free');
+    alert('Free activated. Enjoy!');
+  }
+  function checkout(plan){
+    // Replace with Stripe/LemonSqueezy URL later
+    const url = localStorage.getItem('checkout_'+plan);
+    if(url){ location.href = url; }
+    else { alert('Checkout coming soon. Plan: '+plan.toUpperCase()); }
+  }
+</script>
 </body>
 </html>
