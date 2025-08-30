@@ -3,177 +3,90 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0a1026" />
   <title>Dashboard — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* small, page-only bits so we don't touch styles.css */
-    .top-actions{display:flex; align-items:center; gap:10px}
-    .profile-btn{width:42px; height:42px; border-radius:12px; border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08); display:grid; place-items:center; cursor:pointer}
-    .profile-dot{width:16px; height:16px; border-radius:50%; background:
-      linear-gradient(180deg,#86a8ff,#a7c4ff)}
-    .popover{position:absolute; right:0; top:56px; background:rgba(12,18,40,.98);
-      border:1px solid rgba(255,255,255,.12); border-radius:14px; width:280px; display:none; box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .popover.is-open{display:block}
-    .pop-item{display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.06); color:var(--ink); text-decoration:none}
-    .pop-item:last-child{border-bottom:none}
-    .pop-item:hover{background:rgba(255,255,255,.06)}
-    .muted{color:var(--muted); font-size:13px}
-    .quick-grid{display:grid; gap:16px}
-    @media(min-width:1100px){ .quick-grid{grid-template-columns: 1.1fr 1.2fr .8fr} }
-    .stat{font-weight:900; font-size:26px}
-    .journal-item{background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-      border-radius:12px; padding:12px; margin:10px 0}
-    .journal-date{color:var(--muted); font-size:12px}
-    .journal-text{margin-top:6px}
+    /* Same color style as your screenshot */
+    body { background: #0a1026; color: white; }
+    .dashboard { display: grid; gap: 20px; padding: 40px; }
+    @media(min-width:1000px) {
+      .dashboard { grid-template-columns: 1fr 1.2fr 0.8fr; }
+    }
+    .card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
+    h2 { margin-top: 0; }
+    .stat { font-size: 28px; font-weight: bold; margin-top: 6px; }
+    .journal-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 0; }
+    .journal-date { font-size: 12px; color: #9aa0b9; }
+    .journal-text { margin-top: 6px; }
+    .btn { display:inline-block; margin-top:8px; padding:8px 14px; border-radius:8px; border:none; cursor:pointer; }
+    .btn.primary { background:#3d63ff; color:#fff; }
+    .btn.ghost { background:rgba(255,255,255,0.1); color:#fff; }
   </style>
 </head>
 <body>
-  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
-
   <!-- NAV -->
   <nav class="nav">
     <div class="wrap nav-in">
-      <a class="brand" href="index.html">
-        <span class="logo"></span><span>AI Dream Translator</span>
-      </a>
-
-      <div class="top-actions">
+      <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+      <div>
         <a class="btn ghost" href="dashboard.html">Dashboard</a>
         <a class="btn ghost" href="settings.html">Settings</a>
         <a class="btn primary" href="pricing.html">Upgrade</a>
-
-        <!-- profile popover -->
-        <div style="position:relative">
-          <button id="profileMenuBtn" class="profile-btn" aria-label="menu">
-            <div class="profile-dot"></div>
-          </button>
-          <div id="profileMenu" class="popover">
-            <div class="pop-item" style="cursor:default">
-              <div>
-                <div id="menuName" style="font-weight:800">Welcome</div>
-                <div id="menuEmail" class="muted">(signed in)</div>
-              </div>
-            </div>
-            <a class="pop-item" href="dashboard.html">Home</a>
-            <a class="pop-item" href="settings.html">Manage account</a>
-            <a class="pop-item" href="pricing.html">Pricing</a>
-            <a class="pop-item" href="contact.html">Contact us</a>
-            <a class="pop-item" href="terms.html">Terms &amp; Conditions</a>
-            <button id="signOutBtn" class="pop-item" style="background:none;border:none;text-align:left;cursor:pointer">Sign out</button>
-          </div>
-        </div>
       </div>
     </div>
   </nav>
 
-  <!-- HERO -->
-  <header class="wrap hero">
-    <h1 class="h1">Welcome, <span id="welcomeName">friend</span> 👋</h1>
-    <p class="lead">Log a dream, see insights, and build your private dream history.</p>
+  <!-- HEADER -->
+  <header class="wrap hero" style="margin:40px 0">
+    <h1>Welcome, <span id="welcomeName">friend</span> 👋</h1>
+    <p>Log a dream, see insights, and build your private dream history.</p>
   </header>
 
-  <!-- MAIN -->
-  <main class="wrap quick-grid">
-
-    <!-- LEFT: Quick Start -->
+  <!-- DASHBOARD GRID -->
+  <main class="dashboard">
+    
+    <!-- Quick Start -->
     <section class="card">
-      <h2>Quick start</h2>
-      <p class="small">Jump straight into the tools.</p>
-      <div class="row mt2">
-        <a class="btn primary" href="index.html#interpreter">Interpret now</a>
-        <a class="btn ghost" href="index.html#art">Generate Dream Art</a>
-      </div>
-
-      <div class="mt3">
-        <label class="label" for="dreamText">Describe your dream</label>
-        <textarea id="dreamText" class="textarea" placeholder="What do you remember?"></textarea>
-        <div class="row mt2">
-          <button id="saveDreamBtn" class="btn primary">Save</button>
-          <button id="interpretBtn2" class="btn ghost">Interpret &amp; Art</button>
-        </div>
-        <p class="small">Sharing uses your phone’s native share sheet when available.</p>
-        <div class="row mt2">
-          <button id="shareLastBtn" class="btn ghost">Share last</button>
-          <button id="clearAllBtn" class="btn ghost">Clear all</button>
-        </div>
-      </div>
+      <h2>Quick Start</h2>
+      <textarea id="dreamText" class="textarea" placeholder="Write your dream here..."></textarea>
+      <button class="btn primary" id="saveDreamBtn">Save Dream</button>
+      <button class="btn ghost" id="interpretBtn2">Interpret & Art</button>
     </section>
 
-    <!-- MIDDLE: Stats + Journal -->
+    <!-- Stats + Journal -->
     <section class="card">
       <h2>Your Stats</h2>
-      <div class="grid three" style="margin-top:8px">
-        <div class="card" style="padding:12px">
-          <div class="muted">Dreams saved</div>
-          <div id="statCount" class="stat">0</div>
+      <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div>
+          <div class="stat" id="statCount">0</div>
+          <div>Dreams</div>
         </div>
-        <div class="card" style="padding:12px">
-          <div class="muted">Day streak</div>
-          <div id="statStreak" class="stat">0</div>
+        <div>
+          <div class="stat" id="statStreak">0</div>
+          <div>Streak</div>
         </div>
-        <div class="card" style="padding:12px">
-          <div class="muted">This week</div>
-          <div id="statThisWeek" class="stat">0</div>
+        <div>
+          <div class="stat" id="statThisWeek">0</div>
+          <div>This Week</div>
         </div>
       </div>
-
-      <div class="row mt2" style="justify-content:space-between">
-        <h2 style="margin:8px 0">Journal</h2>
-        <select id="filterSelect" class="select" style="max-width:160px">
-          <option value="all">All time</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">Last 30 days</option>
-        </select>
-      </div>
-
-      <div id="emptyMsg" class="small" style="margin:6px 2px">No dreams yet — write your first one above.</div>
-      <ul id="journalList" style="list-style:none; padding:0; margin:0"></ul>
+      <h2 style="margin-top:20px">Journal</h2>
+      <ul id="journalList" style="list-style:none;padding:0;margin:0"></ul>
     </section>
 
-    <!-- RIGHT: Quick actions / account -->
+    <!-- Quick Actions -->
     <aside class="card">
-      <h2>Quick actions</h2>
-      <div class="mt">
-        <a class="btn ghost" href="settings.html">Edit profile</a>
-      </div>
-      <div class="mt">
-        <button id="exportBtn" class="btn ghost" type="button">Export data</button>
-      </div>
-      <div class="mt">
-        <input id="importFile" type="file" accept="application/json" class="hidden" />
-        <button id="importBtn" class="btn ghost" type="button">Import data</button>
-      </div>
-      <div class="mt">
-        <button id="clearLocalBtn" class="btn ghost" type="button">Clear local data</button>
-      </div>
-
-      <div class="mt3">
-        <h3>Upgrade</h3>
-        <p class="small">Unlimited interpretations, HD art, search/history.</p>
-        <a class="btn primary" href="pricing.html">Go Pro</a>
-      </div>
+      <h2>Quick Actions</h2>
+      <button class="btn ghost" id="exportBtn">Export Data</button><br>
+      <input type="file" id="importFile" style="display:none">
+      <button class="btn ghost" id="importBtn">Import Data</button><br>
+      <button class="btn ghost" id="clearLocalBtn">Clear Data</button>
+      <h2 style="margin-top:20px">Upgrade</h2>
+      <a href="pricing.html" class="btn primary">Go Pro</a>
     </aside>
 
   </main>
 
-  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
-
-  <script src="app.js" defer></script>
-  <script>
-    // small page-only JS for the profile popover
-    const btn = document.getElementById('profileMenuBtn');
-    const menu = document.getElementById('profileMenu');
-    if (btn && menu){
-      btn.addEventListener('click', (e)=> {
-        e.stopPropagation();
-        menu.classList.toggle('is-open');
-      });
-      document.addEventListener('click', ()=> menu.classList.remove('is-open'));
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
-   
