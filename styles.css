@@ -193,3 +193,29 @@ body{
   .card{padding:16px}
   .image-wrap{min-height:200px}
 }
+/* === Account Menu (global) === */
+.account-wrap { position: relative; margin-left: 10px; }
+.account-btn { display:flex; align-items:center; gap:8px; padding:6px 10px;
+  border:1px solid rgba(255,255,255,.08); border-radius:12px; background:#151a27; cursor:pointer; }
+.account-btn .avatar { width:26px; height:26px; border-radius:50%; background:#222b42; overflow:hidden; }
+.account-btn .dot { width:6px; height:6px; border-radius:50%; background:#7cff9a; margin-left:4px; }
+
+.account-menu { position:absolute; right:0; top:44px; width:260px;
+  background:linear-gradient(180deg,#0f1322,#0b0f1c);
+  border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+  display:none; z-index:30; }
+.account-menu.open { display:block; }
+.acc-header { padding:8px 10px 10px; border-bottom:1px solid rgba(255,255,255,.06); }
+.acc-header .name { font-weight:700 }
+.acc-header .email { font-size:12px; opacity:.8 }
+.acc-item { display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:10px 12px; border-radius:10px; cursor:pointer; }
+.acc-item:hover { background:rgba(255,255,255,.04) }
+.acc-right { opacity:.7; font-size:12px }
+.acc-sub { position:absolute; right:270px; top:0; width:200px; display:none;
+  background:linear-gradient(180deg,#0f1322,#0b0f1c); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px; }
+.acc-sub.open { display:block; }
+.acc-radio { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; }
+.acc-radio:hover { background:rgba(255,255,255,.04) }
+.acc-radio .tick { width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,.25); display:inline-block; position:relative; }
+.acc-radio.active .tick::after { content:""; position:absolute; inset:3px; background:#7cff9a; border-radius:50% }
