@@ -167,3 +167,27 @@ textarea {
   text-align: center;
   color: #9ca3af;
 }
+/* ===== HERO NUDGE ONLY (keeps all other styles) ===== */
+
+/* Move hero higher so users don't have to scroll */
+.hero{
+  /* lower the min-height so the next section sits higher */
+  min-height: calc(100svh - 64px - 160px); /* was ~ - 64px - 48px */
+  padding-top: 8px;                         /* a little less top padding */
+}
+
+/* On phones, pull it a bit more */
+@media (max-width: 900px){
+  .hero{
+    min-height: calc(100svh - 64px - 200px);
+    padding-top: 6px;
+  }
+}
+
+/* Reduce the gap right below the hero */
+#interpreter{ margin-top: 12px !important; }
+
+/* Make the big headline just a touch smaller on wide screens (to avoid pushing content down) */
+@media (min-width: 1024px){
+  .h1{ font-size: clamp(26px, 5.2vw, 38px); }
+}
