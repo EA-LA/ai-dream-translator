@@ -3,32 +3,96 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1026" />
   <title>Settings — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Page-only polish so it matches Home/Dashboard (does NOT change other pages) -->
+  <style>
+    .page { padding-top: 24px; }
+    .card-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+    @media (min-width: 960px) { .card-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .card-grid + .card-grid { margin-top: 20px; }
+
+    /* Cards look like the rest of the app */
+    .card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    /* Inputs and textareas are dark like Home */
+    .card .input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .card .input::placeholder { color: #aab0c3; }
+    .card .input:focus {
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88,166,255,.18);
+    }
+
+    /* File input – make it match */
+    input[type="file"].input { padding: 10px; background: rgba(255,255,255,.06); }
+
+    /* Checkboxes – simple, modern accent to match theme */
+    input[type="checkbox"] { accent-color: #58a6ff; width: 18px; height: 18px; }
+
+    /* Stat boxes inside Current cycle */
+    .stats { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+    .stat-box {
+      background: rgba(255,255,255,.04);
+      border: 1px dashed rgba(255,255,255,.15);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .stat-box h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; color:#cfd6e3; }
+    .stat-box p { margin: 0; font-weight: 800; font-size: 18px; }
+
+    /* Small helpers */
+    .label { display:block; margin:10px 0 6px; font-weight:600; }
+    .small { color:#aab0c3; font-size: .95rem; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .btn-light { background: transparent; border:1px solid rgba(255,255,255,.3); color:#fff; padding:10px 14px; border-radius:8px; }
+    .btn-light:hover { border-color:#58a6ff; color:#58a6ff; }
+  </style>
 </head>
 <body>
-  <!-- NAV -->
+  <!-- Background like other pages -->
+  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
+
+  <!-- NAV (same structure/colors as the rest) -->
   <nav class="nav">
-    <a class="brand" href="index.html">
-      <span class="logo"></span>
-      <span>AI Dream Translator</span>
-    </a>
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html">
+        <span class="logo"></span>
+        <span>AI Dream Translator</span>
+      </a>
 
-    <button id="hamburger" class="hamburger" aria-label="Menu"><span></span></button>
+      <button id="hamburger" class="hamburger" aria-label="Menu"><span></span></button>
 
-    <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="settings.html" class="active">Settings</a>
-      <a href="pricing.html" class="btn-light">Upgrade</a>
-      <button id="signOutBtn" class="btn-light">Sign out</button>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="settings.html" class="active">Settings</a>
+        <a href="pricing.html" class="btn-light">Upgrade</a>
+        <button id="signOutBtn" class="btn-light">Sign out</button>
+      </div>
     </div>
   </nav>
 
   <!-- PAGE -->
-  <main class="container page">
+  <main class="wrap page">
     <!-- compact header -->
     <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <h1 class="h1" style="font-size:18px; font-weight:800;">Settings</h1>
+      <h1 class="h1" style="font-size:22px; font-weight:800;">Account settings</h1>
     </div>
 
     <!-- TOP ROW: plan / cycle / billing -->
@@ -63,30 +127,30 @@
       <div class="card">
         <h2>Billing &amp; payment</h2>
         <p class="small">Status: Free (no billing)</p>
-        <div class="row mt">
+        <div class="row" style="margin-top:8px;">
           <a class="btn-light" href="pricing.html">Manage plan</a>
-          <a class="btn-light" href="pricing.html">Billing FAQ</a>
+          <a class="btn-light" href="pricing.html#faq">Billing FAQ</a>
         </div>
       </div>
     </section>
 
     <!-- PROFILE / PREFS -->
-    <section class="card-grid" style="margin-top:20px;">
+    <section class="card-grid">
       <!-- Profile -->
       <div class="card">
         <h2>Profile</h2>
 
         <label class="label">Avatar</label>
         <div id="avatarPreview" style="width:64px; height:64px; border-radius:12px; background:#0f1534; background-size:cover; background-position:center;"></div>
-        <input id="avatarInput" type="file" accept="image/*" style="margin-top:10px;" />
+        <input id="avatarInput" class="input" type="file" accept="image/*" style="margin-top:10px;" />
 
-        <label class="label mt" for="displayName">Display name</label>
+        <label class="label" for="displayName">Display name</label>
         <input id="displayName" class="input" type="text" placeholder="Your name" />
 
-        <label class="label mt" for="username">Username</label>
+        <label class="label" for="username">Username</label>
         <input id="username" class="input" type="text" placeholder="@username" />
 
-        <label class="label mt" for="emailReadonly">Email</label>
+        <label class="label" for="emailReadonly">Email</label>
         <input id="emailReadonly" class="input" type="text" readonly value="(signed in)" />
 
         <button id="saveProfileBtn" class="btn" style="margin-top:12px;">Save profile</button>
@@ -96,35 +160,44 @@
       <div class="card">
         <h2>Preferences</h2>
 
-        <label class="label mt">Reminders</label>
+        <label class="label">Reminders</label>
         <label style="display:flex;align-items:center;gap:10px;">
           <input id="notifToggle" type="checkbox" />
           <span>Send a daily reminder to write last night’s dream.</span>
         </label>
 
-        <label class="label mt">Private mode</label>
+        <label class="label" style="margin-top:14px;">Private mode</label>
         <label style="display:flex;align-items:center;gap:10px;">
           <input id="privateToggle" type="checkbox" />
           <span>Hide sharing buttons and blur entries on load.</span>
         </label>
 
-        <div class="row mt">
+        <div class="row" style="margin-top:14px;">
           <button id="exportBtn" class="btn-light">Export journal (.json)</button>
           <button id="importBtn" class="btn-light">Import</button>
-          <input id="importFile" type="file" accept="application/json" class="hidden" />
+          <input id="importFile" type="file" accept="application/json" class="input" style="max-width:260px;" />
         </div>
 
-        <div class="mt2">
-          <h3 style="font-size:14px; margin-bottom:8px;">Danger zone</h3>
-          <button id="clearLocalBtn" class="btn-light">Delete all local data</button>
+        <div class="row" style="margin-top:14px;">
+          <button id="clearLocalBtn" class="btn-light" style="border-color:rgba(255,100,100,.5); color:#ffdede;">Delete all local data</button>
         </div>
+      </div>
+
+      <!-- Spacer / future card slot -->
+      <div class="card">
+        <h2>Security</h2>
+        <p class="small">Two-factor authentication and device sessions — coming soon.</p>
       </div>
     </section>
   </main>
 
-  <footer>© <span id="year"></span> AI Dream Translator</footer>
+  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
 
+  <!-- Scripts -->
   <script type="module" src="auth.js"></script>
   <script src="app.js" defer></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
