@@ -368,6 +368,7 @@ if (clearBtn) clearBtn.addEventListener('click', clearImage);
 
 // Init default state for art box if it's on the page
 clearImage();
+
 // === Pro Account Menu (global) ===
 
 // Helper: read auth user from localStorage or window (fallbacks)
@@ -483,4 +484,143 @@ function adtApplyTheme(mode) {
   };
   wrap.querySelector('#accLogout').addEventListener('click', doSignOut);
 
+})();
+
+/* =============================
+   PLAN / USAGE — FREE ENFORCEMENT
+   ============================= */
+
+// Adjust here if you change free limits
+const ENTITLEMENTS = {
+  free: {
+    daily: { interpret: 2, art: 1 },
+    lensesUnlocked: ["psychological"], // optional: which lens keys are free
+  }
+};
+
+// --- storage helpers ---
+const USAGE_KEY = "adt_usage";
+const PLAN_KEY  = "adt_plan";
+
+function dayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function getPlan() {
+  return localStorage.getItem(PLAN_KEY) || "free";
+}
+function setPlan(p) {
+  localStorage.setItem(PLAN_KEY, p);
+}
+
+function getUsage() {
+  const raw = localStorage.getItem(USAGE_KEY);
+  const today = dayKey();
+  if (!raw) return { date: today, interpret: 0, art: 0 };
+  try {
+    const u = JSON.parse(raw);
+    return (u.date === today) ? u : { date: today, interpret: 0, art: 0 };
+  } catch {
+    return { date: today, interpret: 0, art: 0 };
+  }
+}
+function saveUsage(u) {
+  localStorage.setItem(USAGE_KEY, JSON.stringify(u));
+}
+
+// --- limits & UI ---
+function hasQuota(action) {
+  const plan = getPlan();
+  const limits = ENTITLEMENTS[plan]?.daily || { interpret: 0, art: 0 };
+  const usage  = getUsage();
+  return (usage[action] || 0) < (limits[action] || 0);
+}
+
+function requireQuota(action) {
+  // Phase 1: only enforce FREE; paid logic will come with Stripe
+  if (getPlan() !== "free") return true;
+  if (hasQuota(action)) return true;
+
+  const msg = action === "interpret"
+    ? "Free plan limit reached: 2 interpretations/day.\nUpgrade to continue."
+    : "Free plan limit reached: 1 dream-art/day.\nUpgrade to continue.";
+  alert(msg);
+  return false;
+}
+
+function recordUsage(action) {
+  const u = getUsage();
+  u[action] = (u[action] || 0) + 1;
+  saveUsage(u);
+  updateUsageUI();
+}
+
+function updateUsageUI() {
+  // If Settings has the two stat boxes, update them
+  const u = getUsage();
+  const boxes = document.querySelectorAll(".stat-box p");
+  if (boxes[0]) boxes[0].textContent = `${u.interpret || 0} / ${ENTITLEMENTS.free.daily.interpret}`;
+  if (boxes[1]) boxes[1].textContent = `${u.art || 0} / ${ENTITLEMENTS.free.daily.art}`;
+}
+
+// Optional: lock premium lenses (only works if you add elements with data-lens)
+function lockPremiumLenses() {
+  if (getPlan() !== "free") return;
+  const allowed = new Set(ENTITLEMENTS.free.lensesUnlocked.map(s => s.toLowerCase()));
+  document.querySelectorAll("[data-lens]").forEach(el => {
+    const key = (el.getAttribute("data-lens") || "").toLowerCase();
+    if (!allowed.has(key)) {
+      el.classList.add("disabled");
+      el.setAttribute("aria-disabled", "true");
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Upgrade to unlock this lens.");
+      }, { once: true });
+    }
+  });
+}
+
+// Attach guards in CAPTURE so they run before your existing handlers.
+// After the original click handler runs, we record usage with setTimeout(0).
+function wireFreeGuards() {
+  const interpretTargets = [
+    document.getElementById("interpretBtn"),   // Home
+    document.getElementById("interpretBtn2")   // Dashboard (redirect button)
+  ].filter(Boolean);
+
+  interpretTargets.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (!requireQuota("interpret")) { e.stopImmediatePropagation(); e.preventDefault(); return; }
+      setTimeout(() => recordUsage("interpret"), 0);
+    }, true); // capture
+  });
+
+  const artTargets = [
+    document.getElementById("imageBtn"),       // Home (Generate Dream Art)
+    document.getElementById("generateBtn")     // If you add a second generator later
+  ].filter(Boolean);
+
+  artTargets.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (!requireQuota("art")) { e.stopImmediatePropagation(); e.preventDefault(); return; }
+      setTimeout(() => recordUsage("art"), 0);
+    }, true); // capture
+  });
+}
+
+// init on every page
+(function initFreePlanPhase1(){
+  if (!localStorage.getItem(PLAN_KEY)) setPlan("free"); // default
+  updateUsageUI();
+  lockPremiumLenses();
+  wireFreeGuards();
+
+  // Rollover at midnight (if tab remains open)
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0,0,1);
+  setTimeout(() => {
+    saveUsage({ date: dayKey(), interpret: 0, art: 0 });
+    updateUsageUI();
+  }, midnight - now);
 })();
