@@ -9,14 +9,15 @@
 </head>
 <body>
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
+
   <nav class="nav"><div class="wrap nav-in">
     <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
     <div class="nav-links">
       <a href="index.html">Home</a>
       <a href="pricing.html">Pricing</a>
       <a class="active" href="contact.html">Contact</a>
-      <a href="signin.html" class="btn ghost">Sign in</a>
-      <a href="signin.html#signup" class="btn primary">Get started</a>
+      <a href="signin.html">Sign in</a>
+      <a class="btn ghost" href="signup.html">Get started</a>
     </div>
   </div></nav>
 
@@ -26,24 +27,27 @@
   </header>
 
   <main class="wrap">
-    <section class="card">
-      <label class="label" for="c-name">Name</label>
-      <input id="c-name" class="input" type="text" placeholder="Your name" />
+    <section class="card" style="max-width:520px;margin:0 auto;">
+      <form>
+        <label class="label" for="name">Name</label>
+        <input class="input" id="name" type="text" placeholder="Your name" required />
 
-      <label class="label mt" for="c-email">Email</label>
-      <input id="c-email" class="input" type="email" placeholder="you@example.com" />
+        <label class="label mt" for="email">Email</label>
+        <input class="input" id="email" type="email" placeholder="you@example.com" required />
 
-      <label class="label mt" for="c-msg">Message</label>
-      <textarea id="c-msg" class="textarea" rows="6" placeholder="How can we help?"></textarea>
+        <label class="label mt" for="message">Message</label>
+        <textarea class="input" id="message" placeholder="How can we help?" rows="5" required></textarea>
 
-      <div class="row mt2">
-        <button class="btn primary" onclick="alert('Thanks! This is a demo. Form backend coming soon.')">Send</button>
-        <a class="btn ghost" href="mailto:support@yourdomain.com">Email instead</a>
-      </div>
+        <div class="row mt2">
+          <button class="btn primary" type="submit">Send</button>
+          <a class="btn ghost" href="mailto:ha6876122@gmail.com">Email instead</a>
+        </div>
+      </form>
     </section>
   </main>
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
+
   <script src="app.js" defer></script>
 </body>
 </html>
