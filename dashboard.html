@@ -3,107 +3,126 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a1026" />
   <title>Dashboard — AI Dream Translator</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Page-only polish (won’t change Home) */
+    .dash-grid { display:grid; gap:18px; grid-template-columns:1fr; }
+    @media (min-width: 980px) { .dash-grid { grid-template-columns:1.2fr .8fr; } }
+    .dash-card { background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:18px; }
+    .dash-head { display:flex; align-items:center; justify-content:space-between; }
+    .muted { color:#aab0c3; }
+    .stat { font-size:28px; font-weight:800; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .list { list-style:none; padding:0; margin:0; }
+    .list li { display:flex; justify-content:space-between; padding:8px 0; border-top:1px dashed rgba(255,255,255,.12); }
+    .list li:first-child { border-top:none; }
+
+    /* Inputs on dashboard: match Home look */
+    .dash-card .input, .dash-card textarea.input {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: #fff;
+      border-radius: 8px;
+      width: 100%;
+    }
+    .dash-card textarea.input { min-height: 120px; resize: vertical; }
+    .dash-card .input:focus, .dash-card textarea.input:focus {
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88,166,255,.18);
+      outline: none;
+    }
+  </style>
 </head>
 <body>
-  <!-- NAV -->
+  <!-- same background as Home -->
+  <div class="bg"><div class="stars"></div><div class="glow"></div></div>
+
+  <!-- same nav style; stays inside your site -->
   <nav class="nav">
-    <a class="brand" href="index.html">
-      <span class="logo"></span>
-      <span>AI Dream Translator</span>
-    </a>
-
-    <button id="hamburger" class="hamburger" aria-label="Menu"><span></span></button>
-
-    <div class="nav-links">
-      <a href="dashboard.html" class="active">Dashboard</a>
-      <a href="settings.html">Settings</a>
-      <a href="pricing.html" class="btn-light">Upgrade</a>
-      <button id="signOutBtn" class="btn-light">Sign out</button>
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
+      <div class="nav-links">
+        <a class="active" href="dashboard.html">Dashboard</a>
+        <a href="settings.html">Settings</a>
+        <a href="pricing.html">Upgrade</a>
+        <button class="btn ghost" id="signOutBtn">Sign out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span></button>
     </div>
   </nav>
 
-  <!-- PAGE -->
-  <main class="container page">
-    <!-- compact header (no giant title) -->
-    <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <h1 class="h1" style="font-size:18px; font-weight:800;">Welcome, <span id="welcomeName">friend</span> 👋</h1>
-    </div>
+  <header class="wrap hero">
+    <h1 class="h1">Welcome, friend <span aria-hidden="true">👋</span></h1>
+    <p class="lead">Log a dream, get insights, and build your private dream history.</p>
+  </header>
 
-    <!-- TOP GRID -->
-    <section class="card-grid">
-      <!-- Quick Start -->
-      <div class="card">
-        <h2>Quick Start</h2>
-        <label class="label" for="dreamText">Write your dream here…</label>
-        <textarea id="dreamText" class="textarea" rows="5" placeholder="What do you remember?"></textarea>
-        <div class="row">
-          <button id="saveDreamBtn" class="btn">Save</button>
-          <button id="interpretBtn2" class="btn-light">Interpret &amp; Art</button>
-        </div>
-        <div class="row mt">
-          <button id="shareLastBtn" class="btn-light">Share last</button>
-          <button id="clearAllBtn" class="btn-light">Clear all</button>
-        </div>
+  <main class="wrap dash-grid">
+    <!-- Left column: Quick Start -->
+    <section class="dash-card">
+      <div class="dash-head">
+        <h2 style="margin:0">Quick Start</h2>
+        <span class="muted small">Private to you</span>
       </div>
 
-      <!-- Your Stats -->
-      <div class="card">
-        <h2>Your Stats</h2>
-        <div class="stats">
-          <div class="stat-box">
-            <h3>Dreams saved</h3>
-            <p id="statCount">0</p>
-          </div>
-          <div class="stat-box">
-            <h3>Day streak</h3>
-            <p id="statStreak">0</p>
-          </div>
-          <div class="stat-box">
-            <h3>This week</h3>
-            <p id="statThisWeek">0</p>
-          </div>
-        </div>
+      <label class="label mt" for="quickText">Write your dream here...</label>
+      <!-- dark textarea (key: class="input") -->
+      <textarea id="quickText" class="input" placeholder="What do you remember?"></textarea>
+
+      <div class="row mt2">
+        <button class="btn primary" id="saveBtn">Save</button>
+        <button class="btn ghost" id="interpretBtn">Interpret &amp; Art</button>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="card">
-        <h2>Quick Actions</h2>
-        <p class="small">Export, import, or remove your local journal (stored on this device).</p>
-        <div class="row mt">
-          <button id="exportBtn" class="btn-light">Export data</button>
-          <button id="importBtn" class="btn-light">Import data</button>
-          <input id="importFile" type="file" accept="application/json" class="hidden" />
-        </div>
-        <div class="row mt">
-          <button id="clearLocalBtn" class="btn-light">Delete local data</button>
-        </div>
-        <hr style="border:none; border-top:1px solid rgba(255,255,255,.08); margin:14px 0">
-        <a class="btn" href="pricing.html">Upgrade</a>
+      <div class="row mt2">
+        <button class="btn ghost" id="shareLastBtn">Share last</button>
+        <button class="btn ghost" id="clearAllBtn">Clear all</button>
       </div>
     </section>
 
-    <!-- JOURNAL -->
-    <section class="card" style="margin-top:20px;">
-      <div class="row" style="justify-content:space-between; align-items:center;">
-        <h2>Journal</h2>
-        <select id="filterSelect" class="select" style="max-width:160px;">
-          <option value="all">All time</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">Last 30 days</option>
-        </select>
-      </div>
+    <!-- Right column: Stats -->
+    <aside class="dash-card">
+      <h2 style="margin:0 0 6px">Your Stats</h2>
+      <ul class="list">
+        <li><span>Dreams saved</span><span class="stat" id="statSaved">0</span></li>
+        <li><span>Day streak</span><span class="stat" id="statStreak">0</span></li>
+        <li><span>This week</span><span class="stat" id="statWeek">0</span></li>
+      </ul>
+    </aside>
 
-      <p id="emptyMsg" class="small" style="margin-top:6px;">No dreams yet — write your first one above.</p>
-      <ul id="journalList" style="list-style:none; margin-top:8px; display:grid; gap:14px;"></ul>
+    <!-- Quick actions -->
+    <section class="dash-card" style="grid-column:1/-1">
+      <h2 style="margin:0 0 8px">Quick Actions</h2>
+      <p class="small muted">Export, import, or remove your local journal (stored on this device).</p>
+      <div class="row mt">
+        <button class="btn ghost" id="exportBtn">Export data</button>
+        <button class="btn ghost" id="importBtn">Import data</button>
+        <input id="importFile" type="file" accept="application/json" class="input" style="max-width:260px" />
+        <button class="btn ghost" id="clearLocalBtn">Delete local data</button>
+        <a class="btn primary" href="pricing.html" style="margin-left:auto">Upgrade</a>
+      </div>
+    </section>
+
+    <!-- Journal list -->
+    <section class="dash-card" style="grid-column:1/-1">
+      <h2 style="margin:0 0 8px">Journal</h2>
+      <div id="journalList" class="muted">No entries yet. Your saved dreams will appear here.</div>
     </section>
   </main>
 
-  <footer>© <span id="year"></span> AI Dream Translator</footer>
+  <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
 
-  <!-- Scripts: keep both so auth + dashboard actions work -->
-  <script type="module" src="auth.js"></script>
+  <!-- existing scripts -->
   <script src="app.js" defer></script>
+  <script type="module" src="auth.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Optional stat bootstrapping from localStorage
+    const getN = k => parseInt(localStorage.getItem(k) || '0', 10);
+    document.getElementById('statSaved').textContent = getN('dreams_saved');
+    document.getElementById('statStreak').textContent = getN('day_streak');
+    document.getElementById('statWeek').textContent = getN('week_count');
+  </script>
 </body>
 </html>
