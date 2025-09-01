@@ -1,59 +1,51 @@
-// /api/create-checkout-session.js — Vercel Serverless Function
+// /api/create-checkout-session.js
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-06-20",
+});
+
+const PRICES = {
+  lite: {
+    monthly: process.env.STRIPE_PRICE_LITE_MONTHLY,
+    yearly:  process.env.STRIPE_PRICE_LITE_YEARLY,
+  },
+  standard: {
+    monthly: process.env.STRIPE_PRICE_STANDARD_MONTHLY,
+    yearly:  process.env.STRIPE_PRICE_STANDARD_YEARLY,
+  },
+  pro: {
+    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
+    yearly:  process.env.STRIPE_PRICE_PRO_YEARLY,
+  },
+};
 
 export default async function handler(req, res) {
-  // Quick GET so you can open in the browser and NOT get 404 HTML.
-  if (req.method === 'GET') {
-    res.setHeader('Content-Type', 'application/json');
-    return res
-      .status(200)
-      .end(JSON.stringify({ ok: true, info: 'POST here to create a Stripe Checkout session.' }));
-  }
-
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(405).end(JSON.stringify({ error: 'Method not allowed' }));
-  }
-
   try {
-    const body = req.body || {};
-    const wantYearly = body.priceId === 'YEARLY';
-    const priceId = wantYearly
-      ? process.env.STRIPE_PRICE_YEARLY || process.env.STRIPE_PRICE_MONTHLY
-      : process.env.STRIPE_PRICE_MONTHLY;
+    // Accept both GET (query) and POST (json) for convenience
+    const src = req.method === "POST" ? req.body : req.query;
+    const plan = (src.plan || "lite").toLowerCase();
+    const mode = (src.mode || "monthly").toLowerCase(); // 'monthly' | 'yearly'
 
-    if (!process.env.STRIPE_SECRET_KEY) {
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(500).end(JSON.stringify({ error: 'Missing STRIPE_SECRET_KEY env var' }));
-    }
-    if (!priceId) {
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(500).end(JSON.stringify({ error: 'Server missing price IDs' }));
-    }
+    const priceId = PRICES[plan]?.[mode];
+    if (!priceId) return res.status(400).json({ error: "Invalid plan or mode." });
 
-    const Stripe = (await import('stripe')).default;
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
+    const origin =
+      (req.headers["x-forwarded-proto"] ? `${req.headers["x-forwarded-proto"]}://` : "https://") +
+      (req.headers.host || "ai-dream-translator.vercel.app");
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${origin}/success.html?plan=${encodeURIComponent(plan)}&mode=${encodeURIComponent(mode)}`,
+      cancel_url: `${origin}/pricing.html`,
       allow_promotion_codes: true,
-      customer_email: body.email || undefined,
-      success_url: body.successUrl || `${req.headers.origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: body.cancelUrl || `${req.headers.origin}/pricing.html`
+      metadata: { plan, mode },
     });
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).end(JSON.stringify({ url: session.url }));
+    return res.status(200).json({ url: session.url });
   } catch (err) {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(500).end(JSON.stringify({ error: 'Stripe error', detail: String(err) }));
+    console.error(err);
+    return res.status(500).json({ error: "Failed to create checkout session." });
   }
 }
