@@ -39,47 +39,49 @@
   </header>
 
   <main class="wrap">
-    <!-- Dream input + lenses -->
-    <section class="card" style="margin-bottom:18px">
+    <!-- Interpreter (IDs MUST match app.js) -->
+    <section class="card" id="interpreter" style="margin-bottom:18px">
       <div class="row" style="gap:14px; align-items:flex-start; flex-wrap:wrap">
         <div style="flex:1; min-width:260px">
           <label class="label" for="dreamInput">Your dream</label>
-          <textarea id="dreamInput" class="input" rows="5" placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
+          <textarea id="dreamInput" class="input" rows="5"
+            placeholder="Example: I was flying over a city while a clock melted on a rooftop..."></textarea>
 
           <div class="row mt" style="gap:10px; flex-wrap:wrap">
             <button id="interpretBtn" class="btn primary">Interpret Dream</button>
-            <button id="generateArtBtn" class="btn ghost">Generate Dream Art</button>
+            <button id="imageBtn" class="btn ghost">Generate Dream Art</button>
           </div>
         </div>
 
         <div style="flex:1; min-width:260px">
-          <div class="tabs row" style="gap:8px; flex-wrap:wrap">
-            <button class="btn ghost" id="lensScientific" data-lens="scientific">Scientific</button>
-            <button class="btn ghost" id="lensPsych" data-lens="psychological">Psychological</button>
-            <button class="btn ghost" id="lensSpiritual" data-lens="spiritual">Spiritual</button>
+          <!-- tabs that app.js toggles -->
+          <div class="row" style="gap:8px; flex-wrap:wrap">
+            <button class="tab is-active" data-tab="scientific">Scientific</button>
+            <button class="tab" data-tab="psychological">Psychological</button>
+            <button class="tab" data-tab="spiritual">Spiritual</button>
           </div>
 
-          <div id="interpretationBox" class="card" style="margin-top:10px">
-            <h3 style="margin:0 0 6px">Interpretation</h3>
-            <div id="interpretationText" class="small" style="opacity:.9">Write your dream and pick a lens to see insights.</div>
-          </div>
+          <!-- panels that app.js fills -->
+          <div class="panel is-active" id="pane-scientific">Write your dream and pick a lens to see insights.</div>
+          <div class="panel" id="pane-psychological"></div>
+          <div class="panel" id="pane-spiritual"></div>
         </div>
       </div>
     </section>
 
-    <!-- Dream art output -->
+    <!-- Dream art output (IDs MUST match app.js) -->
     <section class="card">
       <h2 style="margin-top:0">Dream Art</h2>
-      <div id="artResult" class="panel" style="height:240px; display:flex; align-items:center; justify-content:center; opacity:.8">
-        No image yet. Click <strong>Generate Dream Art</strong>.
+      <div id="imageWrap" class="panel" style="height:240px; display:flex; align-items:center; justify-content:center; opacity:.8">
+        <div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>
       </div>
       <div class="row mt2" style="gap:10px">
-        <button id="downloadArtBtn" class="btn ghost" disabled>Download</button>
-        <button id="clearArtBtn" class="btn ghost">Clear</button>
+        <button id="downloadBtn" class="btn ghost" disabled>Download</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
       </div>
     </section>
 
-    <!-- Reviews (3 cards) -->
+    <!-- Reviews -->
     <section class="grid three mt2">
       <article class="card">
         <p style="margin:0 0 6px">★★★★★ <strong>“Surprisingly accurate”</strong></p>
@@ -95,7 +97,7 @@
       </article>
     </section>
 
-    <!-- 1-2-3 How it works -->
+    <!-- How it works -->
     <section class="grid three mt2">
       <div class="card">
         <h3 style="margin:0 0 6px">1. Describe your dream</h3>
@@ -135,31 +137,10 @@
 
   <footer class="wrap foot">© <span id="year"></span> AI Dream Translator</footer>
 
-  <!-- Your scripts -->
+  <!-- Scripts -->
   <script src="app.js" defer></script>
-
-  <!-- Small helpers so the page looks right even if app.js is still wiring -->
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Optional visual lens toggle (non-conflicting with your app.js)
-    const lensButtons = ['lensScientific','lensPsych','lensSpiritual'].map(id=>document.getElementById(id));
-    lensButtons.forEach(btn=>{
-      if(!btn) return;
-      btn.addEventListener('click',()=>{
-        lensButtons.forEach(b=>b && b.classList.remove('primary'));
-        btn.classList.add('primary');
-      });
-    });
-
-    // Clear art placeholder
-    const artBox = document.getElementById('artResult');
-    const clearBtn = document.getElementById('clearArtBtn');
-    const dlBtn = document.getElementById('downloadArtBtn');
-    if (clearBtn) clearBtn.addEventListener('click', ()=>{
-      artBox.innerHTML = 'No image yet. Click <strong>Generate Dream Art</strong>.';
-      dlBtn.setAttribute('disabled','disabled');
-    });
   </script>
 </body>
 </html>
