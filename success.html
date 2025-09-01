@@ -10,8 +10,21 @@
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
   <main class="wrap hero center">
     <h1 class="h1">🎉 You’re all set!</h1>
-    <p class="lead">Payment succeeded. Your Pro features will unlock shortly.</p>
+    <p class="lead" id="msg">Payment succeeded. Unlocking your features…</p>
     <div class="ctas"><a class="btn primary" href="dashboard.html">Go to Dashboard</a></div>
   </main>
+
+  <script>
+    // Unlock locally so the dashboard/app picks up the plan immediately
+    (function(){
+      const plan = new URLSearchParams(location.search).get('plan');
+      if (plan) {
+        localStorage.setItem('adt_plan', plan);
+        const name = plan.toUpperCase();
+        const msg = document.getElementById('msg');
+        if (msg) msg.textContent = 'Your ' + name + ' plan is active.';
+      }
+    })();
+  </script>
 </body>
 </html>
