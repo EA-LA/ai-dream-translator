@@ -29,7 +29,7 @@
   <!-- same background as Home -->
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
 
-  <!-- same nav + same colors + LOCAL links -->
+  <!-- same nav + LOCAL links -->
   <nav class="nav">
     <div class="wrap nav-in">
       <a class="brand" href="index.html"><span class="logo"></span><span>AI Dream Translator</span></a>
@@ -74,7 +74,7 @@
           <li><span class="yes">✔</span><div>Save to local history</div></li>
           <li><span class="yes">✔</span><div>Personal use license</div></li>
         </ul>
-        <button class="btn ghost mt2" onclick="activateFree()">Get started</button>
+        <button class="btn ghost mt2" id="btnFree">Get started</button>
       </article>
 
       <!-- Lite -->
@@ -91,7 +91,11 @@
           <li><span class="yes">✔</span><div>Priority queue (lite)</div></li>
           <li><span class="yes">✔</span><div>Commercial-lite license</div></li>
         </ul>
-        <button class="btn primary mt2" onclick="checkout('lite')">Subscribe</button>
+        <!-- attach BOTH price ids; JS picks based on toggle -->
+        <button class="btn primary mt2"
+                data-plan="lite"
+                data-price-monthly="__LITE_PRICE_MONTHLY__"
+                data-price-yearly="__LITE_PRICE_YEARLY__">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -111,7 +115,10 @@
           <li><span class="yes">✔</span><div>Priority support</div></li>
           <li><span class="yes">✔</span><div>Commercial license</div></li>
         </ul>
-        <button class="btn primary mt2" onclick="checkout('standard')">Subscribe</button>
+        <button class="btn primary mt2"
+                data-plan="standard"
+                data-price-monthly="__STANDARD_PRICE_MONTHLY__"
+                data-price-yearly="__STANDARD_PRICE_YEARLY__">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -130,7 +137,10 @@
           <li><span class="yes">✔</span><div>Early access to new models</div></li>
           <li><span class="yes">✔</span><div>Priority queue (max)</div></li>
         </ul>
-        <button class="btn primary mt2" onclick="checkout('pro')">Subscribe</button>
+        <button class="btn primary mt2"
+                data-plan="pro"
+                data-price-monthly="__PRO_PRICE_MONTHLY__"
+                data-price-yearly="__PRO_PRICE_YEARLY__">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -168,7 +178,7 @@
 
   <!-- Scripts -->
   <script>
-    // Same footer year
+    // Footer year
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // Billing toggle (monthly/yearly)
@@ -177,9 +187,7 @@
     const billLabels = Array.from(document.querySelectorAll('.js-billing'));
     function setMode(mode){
       switchEl.setAttribute('data-mode', mode);
-      prices.forEach(p=>{
-        p.textContent = (mode==='yearly' ? p.dataset.yearly : p.dataset.monthly);
-      });
+      prices.forEach(p=>{ p.textContent = (mode==='yearly' ? p.dataset.yearly : p.dataset.monthly); });
       billLabels.forEach(b=> b.textContent = (mode==='yearly' ? 'yearly' : 'monthly'));
     }
     setMode('monthly');
@@ -188,13 +196,40 @@
       setMode(next);
     });
 
-    // Action stubs (connect later)
-    function activateFree(){ localStorage.setItem('adt_tier','free'); alert('Free activated. Enjoy!'); }
-    function checkout(plan){
-      const url = localStorage.getItem('checkout_'+plan);
-      if(url){ location.href = url; }
-      else{ alert('Checkout coming soon. Plan: '+plan.toUpperCase()); }
-    }
+    // Activate free
+    document.getElementById('btnFree').addEventListener('click', ()=>{
+      localStorage.setItem('adt_plan','free');
+      alert('Free plan activated. Enjoy!');
+      location.href = 'dashboard.html';
+    });
+
+    // Subscribe buttons -> create checkout session
+    document.querySelectorAll('button[data-plan]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const plan = btn.dataset.plan;
+        const mode = switchEl.getAttribute('data-mode') || 'monthly';
+        const price = btn.dataset[mode === 'yearly' ? 'priceYearly' : 'priceMonthly'];
+
+        if (!price || price.startsWith('__')) {
+          alert('Missing Stripe Price ID for ' + plan + ' (' + mode + '). Set them in the HTML or wire via the API.');
+          return;
+        }
+
+        const res = await fetch('/api/create-checkout-session', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            price,
+            success_url: location.origin + '/success.html?plan=' + plan,
+            cancel_url:  location.origin + '/pricing.html'
+          })
+        });
+        const data = await res.json();
+        if (data?.error) return alert(data.error);
+        if (data?.url) location.href = data.url;
+        else alert('Could not start checkout.');
+      });
+    });
   </script>
 
   <script src="app.js" defer></script>
