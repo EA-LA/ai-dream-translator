@@ -91,11 +91,7 @@
           <li><span class="yes">✔</span><div>Priority queue (lite)</div></li>
           <li><span class="yes">✔</span><div>Commercial-lite license</div></li>
         </ul>
-        <!-- attach BOTH price ids; JS picks based on toggle -->
-        <button class="btn primary mt2"
-                data-plan="lite"
-                data-price-monthly="__LITE_PRICE_MONTHLY__"
-                data-price-yearly="__LITE_PRICE_YEARLY__">Subscribe</button>
+        <button class="btn primary mt2" onclick="checkout('lite')">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -115,10 +111,7 @@
           <li><span class="yes">✔</span><div>Priority support</div></li>
           <li><span class="yes">✔</span><div>Commercial license</div></li>
         </ul>
-        <button class="btn primary mt2"
-                data-plan="standard"
-                data-price-monthly="__STANDARD_PRICE_MONTHLY__"
-                data-price-yearly="__STANDARD_PRICE_YEARLY__">Subscribe</button>
+        <button class="btn primary mt2" onclick="checkout('standard')">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -137,10 +130,7 @@
           <li><span class="yes">✔</span><div>Early access to new models</div></li>
           <li><span class="yes">✔</span><div>Priority queue (max)</div></li>
         </ul>
-        <button class="btn primary mt2"
-                data-plan="pro"
-                data-price-monthly="__PRO_PRICE_MONTHLY__"
-                data-price-yearly="__PRO_PRICE_YEARLY__">Subscribe</button>
+        <button class="btn primary mt2" onclick="checkout('pro')">Subscribe</button>
         <p class="small muted mt">20% off when billed yearly</p>
       </article>
 
@@ -203,33 +193,19 @@
       location.href = 'dashboard.html';
     });
 
-    // Subscribe buttons -> create checkout session
-    document.querySelectorAll('button[data-plan]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const plan = btn.dataset.plan;
-        const mode = switchEl.getAttribute('data-mode') || 'monthly';
-        const price = btn.dataset[mode === 'yearly' ? 'priceYearly' : 'priceMonthly'];
-
-        if (!price || price.startsWith('__')) {
-          alert('Missing Stripe Price ID for ' + plan + ' (' + mode + '). Set them in the HTML or wire via the API.');
-          return;
-        }
-
-        const res = await fetch('/api/create-checkout-session', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({
-            price,
-            success_url: location.origin + '/success.html?plan=' + plan,
-            cancel_url:  location.origin + '/pricing.html'
-          })
-        });
-        const data = await res.json();
-        if (data?.error) return alert(data.error);
-        if (data?.url) location.href = data.url;
-        else alert('Could not start checkout.');
-      });
-    });
+    // Checkout via our API route
+    async function checkout(plan){
+      const mode = switchEl.getAttribute('data-mode') || 'monthly';
+      try{
+        const r = await fetch(`/api/create-checkout-session?plan=${encodeURIComponent(plan)}&mode=${encodeURIComponent(mode)}`);
+        const data = await r.json();
+        if (data.url) location.href = data.url;
+        else throw new Error(data.error || 'Unknown error');
+      }catch(e){
+        alert('Checkout error: ' + e.message);
+      }
+    }
+    window.checkout = checkout;
   </script>
 
   <script src="app.js" defer></script>
