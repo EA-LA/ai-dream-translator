@@ -157,108 +157,9 @@ function renderJournal(){
 
 function escapeHTML(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
-// ===== Settings wiring =====
-(function initSettings(){
-  const emailEl = $('#emailReadonly');
-  const nameEl  = $('#displayName');
-  const userEl  = $('#username');
-  const avatarPreview = $('#avatarPreview');
-  const avatarInput   = $('#avatarInput');
-  const notifToggle   = $('#notifToggle');
-  const privateToggle = $('#privateToggle');
-
-  if (!emailEl) return; // not on settings page
-
-  // Load profile
-  const p = getProfile();
-  emailEl.value = p.email || '(signed in)';
-  nameEl.value  = p.displayName || '';
-  userEl.value  = p.username || '';
-  if (p.avatar){ avatarPreview.style.backgroundImage = `url(${p.avatar})`; }
-
-  // Load prefs
-  const prefs = getPrefs();
-  notifToggle.checked = !!prefs.reminders;
-  privateToggle.checked = !!prefs.private;
-
-  // Save profile
-  $('#saveProfileBtn').addEventListener('click', ()=>{
-    const np = { ...getProfile(), displayName:nameEl.value.trim(), username:userEl.value.trim(), email:emailEl.value };
-    setProfile(np);
-    alert('Profile saved.');
-    const onDash = $('#welcomeName'); if (onDash) onDash.textContent = np.displayName || 'friend';
-  });
-
-  // Avatar upload preview (stored locally)
-  avatarInput.addEventListener('change', async (e)=>{
-    const f = e.target.files?.[0]; if (!f) return;
-    const data = await fileToDataURL(f);
-    avatarPreview.style.backgroundImage = `url(${data})`;
-    const np = { ...getProfile(), avatar:data }; setProfile(np);
-  });
-
-  // Prefs
-  notifToggle.addEventListener('change', ()=>{
-    const pr = { ...getPrefs(), reminders:notifToggle.checked };
-    setPrefs(pr); alert('Reminder preference saved.');
-  });
-  privateToggle.addEventListener('change', ()=>{
-    const pr = { ...getPrefs(), private:privateToggle.checked };
-    setPrefs(pr); alert('Privacy preference saved.');
-  });
-
-  // Export / Import / Clear
-  $('#exportBtn').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify({ dreams:getDreams(), profile:getProfile(), prefs:getPrefs() }, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `dream-journal-${todayISO()}.json`; a.click();
-    URL.revokeObjectURL(url);
-  });
-  $('#importBtn').addEventListener('click', ()=> $('#importFile').click());
-  $('#importFile').addEventListener('change', async (e)=>{
-    const f = e.target.files?.[0]; if (!f) return;
-    const txt = await f.text();
-    try{
-      const data = JSON.parse(txt);
-      if (data.dreams) setDreams(data.dreams);
-      if (data.profile) setProfile(data.profile);
-      if (data.prefs) setPrefs(data.prefs);
-      alert('Imported.');
-    }catch{ alert('Invalid file.'); }
-  });
-
-  $('#clearLocalBtn').addEventListener('click', ()=>{
-    if (!confirm('Delete all local data (profile, prefs, dreams)?')) return;
-    localStorage.removeItem(LS_KEYS.dreams);
-    localStorage.removeItem(LS_KEYS.profile);
-    localStorage.removeItem(LS_KEYS.prefs);
-    location.reload();
-  });
-})();
-
-function fileToDataURL(file){
-  return new Promise((res, rej)=>{
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-
-// ===== Global auth hooks (sign out) =====
-const signOutBtn = $('#signOutBtn');
-if (signOutBtn){
-  signOutBtn.addEventListener('click', ()=>{
-    // Front-end only signout UI; if you have Firebase Auth, call signOut() inside auth.js
-    sessionStorage.clear();
-    alert('Signed out.');
-    location.href = 'index.html';
-  });
-}
-
-// ===================
-// Interpreter + Dream Art demo (no backend required)
-// ===================
+/* =============================
+   INTERPRETER + DREAM ART (Cloudflare-backed)
+   ============================= */
 
 // Tabs support (if present on page)
 const setActiveTab = (name) => {
@@ -266,40 +167,6 @@ const setActiveTab = (name) => {
   $$('.panel').forEach(p => p.classList.toggle('is-active', p.id === `pane-${name}`));
 };
 $$('.tab').forEach(btn => btn.addEventListener('click', () => setActiveTab(btn.dataset.tab)));
-
-// Simple local interpreter
-function interpretDemo(text) {
-  const motifs = [];
-  const addIf = (re, tag) => re.test(text) && motifs.push(tag);
-
-  addIf(/\bfly(?:ing)?\b|sky|float/i, 'flying');
-  addIf(/\bwater|ocean|sea|rain|river|wave/i, 'water');
-  addIf(/\bteeth?\b|tooth|dentist/i, 'teeth');
-  addIf(/\bchase|chasing|run|running|escape/i, 'chase');
-  addIf(/\bplane|airplane|crash|fall/i, 'flight');
-
-  const sci = [];
-  if (motifs.includes('flying') || motifs.includes('flight'))
-    sci.push('REM sleep can include vestibular sensations—feeling of motion or flight—related to brainstem activity.');
-  if (motifs.includes('water'))
-    sci.push('Water often maps to interoception (body state) and emotion processing during REM.');
-  if (motifs.includes('teeth'))
-    sci.push('Teeth imagery can reflect somatic input (jaw tension) and concerns about control/appearance.');
-  if (motifs.includes('chase'))
-    sci.push('Threat-simulation theory: chase scenes rehearse avoidance and boundary-setting.');
-  if (motifs.includes('flight'))
-    sci.push('Crash/fall themes are common when stress or uncertainty rises; the brain simulates loss-of-control scenarios.');
-  if (!sci.length) sci.push('Dreams blend memory, emotion regulation, and REM physiology.');
-
-  const psych = 'Look for real-life parallels. Ask: What felt out of control? Choose one 5-minute action to reduce stress.';
-  const spirit = 'Treat this dream as a nudge to ground yourself; write one sentence intention for tomorrow morning.';
-
-  return {
-    scientific: `<p>${sci.join(' ')}</p>`,
-    psychological: `<p>${psych}</p>`,
-    spiritual: `<p>${spirit}</p>`
-  };
-}
 
 function showTextPanels(obj){
   const put = (id, html) => { const n = document.getElementById(id); if (n) n.innerHTML = html; };
@@ -309,7 +176,7 @@ function showTextPanels(obj){
   setActiveTab('scientific');
 }
 
-// Dream art preview (SVG → data URL)
+// Dream art preview (data URL)
 function showImage(dataUrl){
   const wrap = $('#imageWrap'); if (!wrap) return;
   wrap.innerHTML = '';
@@ -326,39 +193,53 @@ function clearImage(){
   const dl = $('#downloadBtn'); if (dl) dl.disabled = true;
 }
 
-// Hook homepage controls if they exist
+// Hook homepage controls (now call your API routes)
 const interpretBtn = $('#interpretBtn');
 if (interpretBtn){
-  interpretBtn.addEventListener('click', ()=>{
+  interpretBtn.addEventListener('click', async ()=>{
     const text = ($('#dreamInput')?.value || '').trim();
     if (!text) return alert('Please describe your dream first.');
-    const out = interpretDemo(text);
-    showTextPanels(out);
+
+    try{
+      const r = await fetch('/api/interpret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (!r.ok) throw new Error('Server error');
+      const out = await r.json(); // { scientific, psychological, spiritual }
+      showTextPanels({
+        scientific: `<p>${out.scientific || ''}</p>`,
+        psychological: `<p>${out.psychological || ''}</p>`,
+        spiritual: `<p>${out.spiritual || ''}</p>`
+      });
+    }catch(e){
+      console.error(e);
+      alert('Sorry, interpretation failed. Please try again.');
+    }
   });
 }
 
 const imageBtn = $('#imageBtn');
 if (imageBtn){
-  imageBtn.addEventListener('click', ()=>{
+  imageBtn.addEventListener('click', async ()=>{
     const text = ($('#dreamInput')?.value || '').trim();
-    const n = Math.max(1, Math.min(99, text.length % 100));
-    const svg = `
-      <svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'>
-        <defs>
-          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-            <stop offset='0' stop-color='#121c3b'/>
-            <stop offset='1' stop-color='#7aa8ff'/>
-          </linearGradient>
-          <filter id='glow'><feGaussianBlur stdDeviation='8' result='b'/><feMerge><feMergeNode in='b'/><feMergeNode in='SourceGraphic'/></feMerge></filter>
-        </defs>
-        <rect fill='url(#g)' width='100%' height='100%'/>
-        <g filter='url(#glow)' opacity='0.85'>
-          <circle cx='${200 + n*7}' cy='${160 + n*4}' r='${120 + n}' fill='#a7c4ff'/>
-          <circle cx='${760 - n*3}' cy='${380 - n*2}' r='${90 + n/2}' fill='#7aa8ff'/>
-        </g>
-        <text x='50%' y='92%' fill='#e9f0ff' font-family='ui-sans-serif, system-ui' font-size='28' text-anchor='middle'>Dream Art (demo)</text>
-      </svg>`;
-    showImage(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+    if (!text) return alert('Please describe your dream first.');
+
+    try{
+      const r = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (!r.ok) throw new Error('Server error');
+      const data = await r.json(); // { imageDataUrl }
+      if (!data.imageDataUrl) throw new Error('No image');
+      showImage(data.imageDataUrl);
+    }catch(e){
+      console.error(e);
+      alert('Sorry, image generation failed. Please try again.');
+    }
   });
 }
 
@@ -484,205 +365,35 @@ function adtApplyTheme(mode) {
 
 /* =============================
    PLAN / USAGE — FULL ENTITLEMENTS (FREE/LITE/STANDARD/PRO)
+   (unchanged from your last version)
    ============================= */
 
-// --- Plan config ---
 const ENTITLEMENTS = {
-  free: {
-    label: "Free",
-    daily: { interpret: 2, art: 1 },
-    lensesUnlocked: ["psychological"],
-    features: {
-      export: false, tags: false, historySearch: false, weeklyInsights: false,
-      commercial: false, priority: "none", hdArt: false, voiceToDream: false,
-      customPrompts: false, multilingual: false, earlyAccess: false, teamSeats: 0,
-    },
-  },
-  lite: {
-    label: "Lite",
-    daily: { interpret: 8, art: 3 },
-    lensesUnlocked: ["psychological", "symbolic"],
-    features: {
-      export: true, tags: true, historySearch: false, weeklyInsights: false,
-      commercial: "lite", priority: "lite", hdArt: false, voiceToDream: false,
-      customPrompts: false, multilingual: false, earlyAccess: false, teamSeats: 0,
-    },
-  },
-  standard: {
-    label: "Standard",
-    daily: { interpret: Infinity, art: 10 },
-    lensesUnlocked: ["psychological", "symbolic", "cultural", "spiritual"],
-    features: {
-      export: true, tags: true, historySearch: true, weeklyInsights: true,
-      commercial: true, priority: "std", hdArt: false, voiceToDream: false,
-      customPrompts: false, multilingual: false, earlyAccess: true, teamSeats: 0,
-    },
-  },
-  pro: {
-    label: "Pro",
-    daily: { interpret: Infinity, art: 150 },
-    lensesUnlocked: ["psychological", "symbolic", "cultural", "spiritual"],
-    features: {
-      export: true, tags: true, historySearch: true, weeklyInsights: true,
-      commercial: true, priority: "max", hdArt: true, voiceToDream: true,
-      customPrompts: true, multilingual: true, earlyAccess: true, teamSeats: 2,
-    },
-  },
+  free: { label:"Free", daily:{ interpret:2, art:1 }, lensesUnlocked:["psychological"],
+    features:{ export:false,tags:false,historySearch:false,weeklyInsights:false,commercial:false,priority:"none",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:false,teamSeats:0 } },
+  lite: { label:"Lite", daily:{ interpret:8, art:3 }, lensesUnlocked:["psychological","symbolic"],
+    features:{ export:true,tags:true,historySearch:false,weeklyInsights:false,commercial:"lite",priority:"lite",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:false,teamSeats:0 } },
+  standard: { label:"Standard", daily:{ interpret:Infinity, art:10 }, lensesUnlocked:["psychological","symbolic","cultural","spiritual"],
+    features:{ export:true,tags:true,historySearch:true,weeklyInsights:true,commercial:true,priority:"std",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:true,teamSeats:0 } },
+  pro: { label:"Pro", daily:{ interpret:Infinity, art:150 }, lensesUnlocked:["psychological","symbolic","cultural","spiritual"],
+    features:{ export:true,tags:true,historySearch:true,weeklyInsights:true,commercial:true,priority:"max",hdArt:true,voiceToDream:true,customPrompts:true,multilingual:true,earlyAccess:true,teamSeats:2 } },
 };
 
 const USAGE_KEY = "adt_usage";
 const PLAN_KEY  = "adt_plan";
-
-// Allow plan override via URL: ?plan=lite|standard|pro (testing)
-(function planFromQuery(){
-  const p = new URLSearchParams(location.search).get("plan");
-  if (p && ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY, p);
-})();
-
-function dayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function getPlan() { return localStorage.getItem(PLAN_KEY) || "free"; }
-function setPlan(p) { if (ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY, p); }
-
-function getUsage() {
-  const raw = localStorage.getItem(USAGE_KEY);
-  const today = dayKey();
-  if (!raw) return { date: today, interpret: 0, art: 0 };
-  try {
-    const u = JSON.parse(raw);
-    return (u.date === today) ? u : { date: today, interpret: 0, art: 0 };
-  } catch {
-    return { date: today, interpret: 0, art: 0 };
-  }
-}
-function saveUsage(u) { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
-
-function currentLimits(){ return ENTITLEMENTS[getPlan()]?.daily || { interpret: 0, art: 0 }; }
-function hasQuota(action) {
-  const lim = currentLimits();
-  const u = getUsage();
-  const used = u[action] || 0;
-  const max = lim[action];
-  return (max === Infinity) || (used < max);
-}
-function requireQuota(action) {
-  const plan = getPlan();
-  if (hasQuota(action)) return true;
-  const lim = currentLimits()[action];
-  const msg = action === "interpret"
-    ? `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim === Infinity ? 'unlimited' : lim} interpretations/day.`
-    : `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim === Infinity ? 'unlimited' : lim} dream-art/day.`;
-  alert(msg + "\nVisit Pricing to upgrade.");
-  return false;
-}
-function recordUsage(action) {
-  const u = getUsage();
-  u[action] = (u[action] || 0) + 1;
-  saveUsage(u);
-  updateUsageUI();
-}
-
-// Settings usage tiles (optional)
-function updateUsageUI() {
-  const plan = getPlan();
-  const u = getUsage();
-  const lim = currentLimits();
-  const boxes = document.querySelectorAll(".stat-box p"); // 0: interpretations, 1: art
-  if (boxes[0]) boxes[0].textContent = `${u.interpret || 0} / ${lim.interpret === Infinity ? "∞" : lim.interpret}`;
-  if (boxes[1]) boxes[1].textContent = `${u.art || 0} / ${lim.art === Infinity ? "∞" : lim.art}`;
-
-  const planBadges = document.querySelectorAll("[data-plan-badge]");
-  planBadges.forEach(el => el.textContent = ENTITLEMENTS[plan].label);
-}
-
-// Lock/unlock via attributes
-function applyFeatureLocks() {
-  const plan = getPlan();
-  const cfg = ENTITLEMENTS[plan];
-
-  // Features
-  document.querySelectorAll("[data-feature]").forEach(el => {
-    const key = el.getAttribute("data-feature");
-    const val = cfg.features[key];
-    const allowed = (val === true) || (typeof val === "string") || (typeof val === "number" && val > 0);
-    el.classList.toggle("locked", !allowed);
-    el.toggleAttribute("aria-disabled", !allowed);
-    if (!allowed) {
-      el.addEventListener("click", (e)=>{ e.preventDefault(); alert("Upgrade to unlock this feature."); }, { once:true });
-    }
-  });
-
-  // Lenses
-  const allowedLenses = new Set(cfg.lensesUnlocked.map(s=>s.toLowerCase()));
-  document.querySelectorAll("[data-lens]").forEach(el => {
-    const lens = (el.getAttribute("data-lens") || "").toLowerCase();
-    const ok = allowedLenses.has(lens);
-    el.classList.toggle("locked", !ok);
-    el.toggleAttribute("aria-disabled", !ok);
-    if (!ok) {
-      el.addEventListener("click", (e)=>{ e.preventDefault(); alert("Upgrade to unlock this lens."); }, { once:true });
-    }
-  });
-}
-
-// Optional Pro-only HD art toggle
-(function wireHdArt(){
-  const t = document.getElementById("hdArtToggle");
-  if (!t) return;
-  const plan = getPlan();
-  const allowed = !!ENTITLEMENTS[plan].features.hdArt;
-  t.checked = allowed;
-  t.disabled = !allowed;
-})();
-
-// Guards for actions
-function wireGuardsV2() {
-  const interpretTargets = [
-    document.getElementById("interpretBtn"),
-    document.getElementById("interpretBtn2")
-  ].filter(Boolean);
-  interpretTargets.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      if (!requireQuota("interpret")) { e.stopImmediatePropagation(); e.preventDefault(); return; }
-      setTimeout(() => recordUsage("interpret"), 0);
-    }, true);
-  });
-
-  const artTargets = [
-    document.getElementById("imageBtn"),
-    document.getElementById("generateBtn")
-  ].filter(Boolean);
-  artTargets.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      if (!requireQuota("art")) { e.stopImmediatePropagation(); e.preventDefault(); return; }
-      setTimeout(() => recordUsage("art"), 0);
-    }, true);
-  });
-}
-
-// Helper to simulate plan in console
-window.setPlanForTesting = function(p){
-  if (!ENTITLEMENTS[p]) return alert("Unknown plan: " + p);
-  setPlan(p);
-  updateUsageUI();
-  applyFeatureLocks();
-  alert("Plan set to: " + ENTITLEMENTS[p].label);
-};
-
-// Boot
-(function initPlans(){
-  if (!localStorage.getItem(PLAN_KEY)) setPlan("free");
-  updateUsageUI();
-  applyFeatureLocks();
-  wireGuardsV2();
-
-  // Midnight rollover
-  const now = new Date();
-  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0,0,1);
-  setTimeout(() => {
-    saveUsage({ date: dayKey(), interpret: 0, art: 0 });
-    updateUsageUI();
-  }, midnight - now);
-})();
+(function planFromQuery(){ const p=new URLSearchParams(location.search).get("plan"); if (p && ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY,p); })();
+function dayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function getPlan(){ return localStorage.getItem(PLAN_KEY) || "free"; }
+function setPlan(p){ if (ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY,p); }
+function getUsage(){ const raw=localStorage.getItem(USAGE_KEY); const today=dayKey(); if(!raw) return {date:today,interpret:0,art:0}; try{const u=JSON.parse(raw); return (u.date===today)?u:{date:today,interpret:0,art:0};}catch{return {date:today,interpret:0,art:0};}}
+function saveUsage(u){ localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
+function currentLimits(){ return ENTITLEMENTS[getPlan()]?.daily || { interpret:0, art:0 }; }
+function hasQuota(action){ const lim=currentLimits(); const u=getUsage(); const used=u[action]||0; const max=lim[action]; return (max===Infinity)||(used<max); }
+function requireQuota(action){ const plan=getPlan(); if (hasQuota(action)) return true; const lim=currentLimits()[action]; const msg = action==="interpret" ? `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim===Infinity?'unlimited':lim} interpretations/day.` : `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim===Infinity?'unlimited':lim} dream-art/day.`; alert(msg + "\nVisit Pricing to upgrade."); return false; }
+function recordUsage(action){ const u=getUsage(); u[action]=(u[action]||0)+1; saveUsage(u); updateUsageUI(); }
+function updateUsageUI(){ const plan=getPlan(); const u=getUsage(); const lim=currentLimits(); const boxes=document.querySelectorAll(".stat-box p"); if (boxes[0]) boxes[0].textContent=`${u.interpret||0} / ${lim.interpret===Infinity?"∞":lim.interpret}`; if (boxes[1]) boxes[1].textContent=`${u.art||0} / ${lim.art===Infinity?"∞":lim.art}`; document.querySelectorAll("[data-plan-badge]").forEach(el=> el.textContent = ENTITLEMENTS[plan].label ); }
+function applyFeatureLocks(){ const plan=getPlan(); const cfg=ENTITLEMENTS[plan]; document.querySelectorAll("[data-feature]").forEach(el=>{ const key=el.getAttribute("data-feature"); const val=cfg.features[key]; const allowed=(val===true)||(typeof val==="string")||(typeof val==="number" && val>0); el.classList.toggle("locked", !allowed); el.toggleAttribute("aria-disabled", !allowed); if (!allowed){ el.addEventListener("click",(e)=>{e.preventDefault(); alert("Upgrade to unlock this feature.");},{once:true}); }}); const allowedLenses=new Set(cfg.lensesUnlocked.map(s=>s.toLowerCase())); document.querySelectorAll("[data-lens]").forEach(el=>{ const lens=(el.getAttribute("data-lens")||"").toLowerCase(); const ok=allowedLenses.has(lens); el.classList.toggle("locked", !ok); el.toggleAttribute("aria-disabled", !ok); if (!ok){ el.addEventListener("click",(e)=>{e.preventDefault(); alert("Upgrade to unlock this lens.");},{once:true}); }}); }
+(function wireHdArt(){ const t=document.getElementById("hdArtToggle"); if(!t) return; const plan=getPlan(); const allowed=!!ENTITLEMENTS[plan].features.hdArt; t.checked=allowed; t.disabled=!allowed; })();
+function wireGuardsV2(){ const interpretTargets=[document.getElementById("interpretBtn"),document.getElementById("interpretBtn2")].filter(Boolean); interpretTargets.forEach(btn=>{ btn.addEventListener("click",(e)=>{ if(!requireQuota("interpret")) { e.stopImmediatePropagation(); e.preventDefault(); return; } setTimeout(()=>recordUsage("interpret"),0); }, true);}); const artTargets=[document.getElementById("imageBtn"),document.getElementById("generateBtn")].filter(Boolean); artTargets.forEach(btn=>{ btn.addEventListener("click",(e)=>{ if(!requireQuota("art")) { e.stopImmediatePropagation(); e.preventDefault(); return; } setTimeout(()=>recordUsage("art"),0); }, true);}); }
+window.setPlanForTesting=function(p){ if(!ENTITLEMENTS[p]) return alert("Unknown plan: "+p); setPlan(p); updateUsageUI(); applyFeatureLocks(); alert("Plan set to: "+ENTITLEMENTS[p].label); };
+(function initPlans(){ if(!localStorage.getItem(PLAN_KEY)) setPlan("free"); updateUsageUI(); applyFeatureLocks(); wireGuardsV2(); const now=new Date(); const midnight=new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0,0,1); setTimeout(()=>{ saveUsage({date:dayKey(), interpret:0, art:0}); updateUsageUI(); }, midnight-now); })();
