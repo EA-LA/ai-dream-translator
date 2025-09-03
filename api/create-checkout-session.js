@@ -1,7 +1,7 @@
 // /api/create-checkout-session.js
+// POST { price: 'price_XXXXX', success_url: string, cancel_url: string }
+// Returns: { url }
 import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
 
 export default async function handler(req, res) {
   // CORS + preflight
@@ -14,34 +14,40 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'POST only' });
+    return res.status(405).json({ error: 'Use POST' });
   }
 
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
-      return res.status(500).json({ error: 'Missing STRIPE_SECRET_KEY' });
+      return res.status(500).json({ error: 'STRIPE_SECRET_KEY missing' });
     }
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const { price, success_url, cancel_url } = await readJSON(req);
+    const body = await readJSON(req);
+    const { price, success_url, cancel_url } = body || {};
     if (!price) return res.status(400).json({ error: 'Missing "price"' });
 
-    const origin = req.headers.origin || `https://${req.headers.host}`;
+    // Use the caller origin if URLs not explicitly passed
+    const origin = req.headers['origin'] || `https://${req.headers['host']}`;
+    const successURL = success_url || `${origin}/success.html`;
+    const cancelURL  = cancel_url  || `${origin}/pricing.html`;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price, quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: success_url || `${origin}/success.html`,
-      cancel_url:  cancel_url  || `${origin}/pricing.html`
+      success_url: successURL + '?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: cancelURL
     });
 
     return res.status(200).json({ url: session.url });
   } catch (e) {
-    return res.status(500).json({ error: 'stripe-failed', detail: String(e?.message || e) });
+    console.error(e);
+    return res.status(500).json({ error: 'checkout-failed' });
   }
 }
 
-function readJSON(req) {
+function readJSON(req){
   return new Promise((resolve, reject) => {
     let d = '';
     req.on('data', c => (d += c));
