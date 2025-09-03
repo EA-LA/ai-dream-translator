@@ -10,21 +10,19 @@
   <div class="bg"><div class="stars"></div><div class="glow"></div></div>
   <main class="wrap hero center">
     <h1 class="h1">🎉 You’re all set!</h1>
-    <p class="lead" id="msg">Payment succeeded. Unlocking your features…</p>
+    <p class="lead" id="msg">Activating your plan…</p>
     <div class="ctas"><a class="btn primary" href="dashboard.html">Go to Dashboard</a></div>
   </main>
-
   <script>
-    // Unlock locally so the dashboard/app picks up the plan immediately
-    (function(){
-      const plan = new URLSearchParams(location.search).get('plan');
-      if (plan) {
-        localStorage.setItem('adt_plan', plan);
-        const name = plan.toUpperCase();
-        const msg = document.getElementById('msg');
-        if (msg) msg.textContent = 'Your ' + name + ' plan is active.';
-      }
-    })();
+    const params = new URLSearchParams(location.search);
+    const plan = (params.get('plan')||'').toLowerCase();
+    if (['lite','standard','pro'].includes(plan)) {
+      localStorage.setItem('adt_plan', plan);
+      document.getElementById('msg').textContent = `Your ${plan.toUpperCase()} features are unlocked.`;
+    } else {
+      document.getElementById('msg').textContent = 'Payment succeeded.';
+    }
+    setTimeout(()=>location.href='dashboard.html', 1500);
   </script>
 </body>
 </html>
