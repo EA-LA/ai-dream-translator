@@ -1,131 +1,78 @@
-// ===== Helpers =====
-const $  = (s) => document.querySelector(s);
-const $$ = (s) => Array.from(document.querySelectorAll(s));
+<script>
+// =====================
+// Helpers
+// =====================
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const todayISO = () => new Date().toISOString().slice(0,10);
+const escapeHTML = (s) => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-// Footer year
-const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
-
-// Mobile menu
-const hamburger = $('#hamburger');
-if (hamburger) hamburger.addEventListener('click', () => document.body.classList.toggle('nav-open'));
-
-// ===== Local storage model =====
-const LS_KEYS = { dreams:'adt_dreams', profile:'adt_profile', prefs:'adt_prefs' };
-
+// =====================
+// Local storage model
+// =====================
+const LS = { dreams:'adt_dreams', profile:'adt_profile', prefs:'adt_prefs', usage:'adt_usage', plan:'adt_plan' };
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-// ===== Profile / prefs =====
-function getProfile(){ return load(LS_KEYS.profile, {displayName:'', username:'', email:'', avatar:''}); }
-function setProfile(p){ save(LS_KEYS.profile, p); }
-
-function getPrefs(){ return load(LS_KEYS.prefs, {reminders:false, private:false}); }
-function setPrefs(p){ save(LS_KEYS.prefs, p); }
-
-// ===== Dreams =====
-function getDreams(){ return load(LS_KEYS.dreams, []); }
-function setDreams(arr){ save(LS_KEYS.dreams, arr); }
-
+function getDreams(){ return load(LS.dreams, []); }
+function setDreams(v){ save(LS.dreams, v); }
 function addDream(text){
   const arr = getDreams();
-  arr.unshift({ id:crypto.randomUUID(), text, date: new Date().toISOString() });
+  arr.unshift({ id:crypto.randomUUID(), text, date:new Date().toISOString() });
   setDreams(arr);
 }
-
-// Streak: consecutive days with at least one dream
 function calcStreak(){
   const byDay = new Set(getDreams().map(d => d.date.slice(0,10)));
-  let streak = 0;
-  for (let i=0; ; i++){
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const iso = d.toISOString().slice(0,10);
-    if (byDay.has(iso)) streak++;
-    else break;
-  }
-  return streak;
+  let s=0; for(let i=0;;i++){ const d=new Date(); d.setDate(d.getDate()-i); if(byDay.has(d.toISOString().slice(0,10))) s++; else break; }
+  return s;
 }
-function countThisWeek(){
-  const now = new Date(); const start = new Date(); start.setDate(now.getDate()-6);
-  return getDreams().filter(d => new Date(d.date) >= start).length;
+function countThisWeek(){ const now=new Date(), start=new Date(); start.setDate(now.getDate()-6); return getDreams().filter(d=>new Date(d.date)>=start).length; }
+
+// =====================
+// Plans / limits (unchanged numbers)
+// =====================
+const ENTITLEMENTS = {
+  free:{ label:"Free", daily:{interpret:2, art:1} },
+  lite:{ label:"Lite", daily:{interpret:8, art:3} },
+  standard:{ label:"Standard", daily:{interpret:Infinity, art:10} },
+  pro:{ label:"Pro", daily:{interpret:Infinity, art:150} },
+};
+const plan = () => localStorage.getItem(LS.plan) || 'free';
+const setPlan = (p) => ENTITLEMENTS[p] && localStorage.setItem(LS.plan, p);
+
+const dayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+function usage(){ const u=load(LS.usage, null); const t=dayKey(); return (u && u.date===t)?u:{date:t, interpret:0, art:0}; }
+function saveUsage(u){ save(LS.usage, u); }
+function hasQuota(kind){
+  const lim = ENTITLEMENTS[plan()].daily[kind];
+  const u = usage()[kind] || 0;
+  return (lim===Infinity) || (u<lim);
 }
+function bump(kind){ const u=usage(); u[kind]=(u[kind]||0)+1; saveUsage(u); updateUsageUI(); }
 
-// ===== Dashboard wiring =====
-(function initDashboard(){
-  const welcome = $('#welcomeName');
-  if (welcome){ welcome.textContent = (getProfile().displayName || 'friend'); }
-
-  const saveBtn = $('#saveDreamBtn');
-  if (saveBtn){
-    saveBtn.addEventListener('click', () => {
-      const t = $('#dreamText').value.trim();
-      if (!t) return alert('Please write something first.');
-      addDream(t);
-      $('#dreamText').value = '';
-      renderJournal();
-      renderStats();
-      alert('Saved!');
-    });
-  }
-
-  const shareBtn = $('#shareLastBtn');
-  if (shareBtn){
-    shareBtn.addEventListener('click', async () => {
-      const last = getDreams()[0];
-      if (!last) return alert('No entries yet.');
-      const text = `My dream (${last.date.slice(0,10)}): ${last.text}`;
-      if (navigator.share) await navigator.share({ text, title:'Dream Journal' });
-      else { await navigator.clipboard.writeText(text); alert('Copied to clipboard.'); }
-    });
-  }
-
-  const clearAllBtn = $('#clearAllBtn');
-  if (clearAllBtn){
-    clearAllBtn.addEventListener('click', () => {
-      if (confirm('Delete ALL local dreams?')){ setDreams([]); renderJournal(); renderStats(); }
-    });
-  }
-
-  const filter = $('#filterSelect');
-  if (filter) filter.addEventListener('change', renderJournal);
-
-  const interp2 = $('#interpretBtn2');
-  if (interp2) interp2.addEventListener('click', () => {
-    // send them to homepage interpreter (keeps current page simple)
-    location.href = 'index.html#interpreter';
-  });
-
-  if ($('#journalList')){ renderJournal(); renderStats(); }
-})();
-
+// =====================
+// UI helpers (stats, usage, journal render)
+// =====================
 function renderStats(){
-  const dreams = getDreams();
-  const c = $('#statCount'); if (c) c.textContent = dreams.length;
-  const s = $('#statStreak'); if (s) s.textContent = calcStreak();
-  const w = $('#statThisWeek'); if (w) w.textContent = countThisWeek();
+  const c=$('#statCount'), s=$('#statStreak'), w=$('#statThisWeek');
+  if(c) c.textContent = getDreams().length;
+  if(s) s.textContent = calcStreak();
+  if(w) w.textContent = countThisWeek();
 }
-
 function renderJournal(){
-  const list = $('#journalList'); const empty = $('#emptyMsg'); if (!list) return;
-  const range = ($('#filterSelect')?.value) || 'all';
+  const list=$('#journalList'), empty=$('#emptyMsg'); if(!list) return;
+  const range = ($('#filterSelect')?.value)||'all';
   let items = getDreams();
-
   const now = new Date();
-  if (range === 'week'){
-    const start = new Date(); start.setDate(now.getDate()-6);
-    items = items.filter(d => new Date(d.date) >= start);
-  } else if (range === 'month'){
-    const start = new Date(); start.setDate(now.getDate()-30);
-    items = items.filter(d => new Date(d.date) >= start);
-  }
+  if(range==='week'){ const start=new Date(); start.setDate(now.getDate()-6); items=items.filter(d=>new Date(d.date)>=start); }
+  if(range==='month'){ const start=new Date(); start.setDate(now.getDate()-30); items=items.filter(d=>new Date(d.date)>=start); }
 
-  list.innerHTML = '';
-  if (!items.length){ empty?.classList.remove('hidden'); return; }
+  list.innerHTML='';
+  if(!items.length){ empty?.classList.remove('hidden'); return; }
   empty?.classList.add('hidden');
 
-  items.forEach(d => {
-    const li = document.createElement('li');
-    li.className = 'journal-item';
+  items.forEach(d=>{
+    const li=document.createElement('li'); li.className='journal-item';
     li.innerHTML = `
       <div class="journal-date">${new Date(d.date).toLocaleString()}</div>
       <div class="journal-text">${escapeHTML(d.text)}</div>
@@ -136,264 +83,219 @@ function renderJournal(){
     list.appendChild(li);
   });
 
-  list.querySelectorAll('[data-delete]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const id = btn.getAttribute('data-delete');
-      setDreams(getDreams().filter(x=>x.id!==id));
-      renderJournal(); renderStats();
-    });
-  });
-  list.querySelectorAll('[data-share]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = btn.getAttribute('data-share');
-      const it = getDreams().find(x=>x.id===id);
-      if (!it) return;
-      const txt = `My dream (${it.date.slice(0,10)}): ${it.text}`;
-      if (navigator.share) await navigator.share({ text:txt, title:'Dream Journal' });
-      else { await navigator.clipboard.writeText(txt); alert('Copied to clipboard.'); }
-    });
-  });
+  list.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.getAttribute('data-delete'); setDreams(getDreams().filter(x=>x.id!==id)); renderJournal(); renderStats();
+  })));
+  list.querySelectorAll('[data-share]').forEach(b=>b.addEventListener('click', async ()=>{
+    const id=b.getAttribute('data-share'); const it=getDreams().find(x=>x.id===id); if(!it) return;
+    const txt=`My dream (${it.date.slice(0,10)}): ${it.text}`;
+    if(navigator.share) await navigator.share({title:'Dream Journal', text:txt}); else { await navigator.clipboard.writeText(txt); alert('Copied to clipboard'); }
+  }));
 }
 
-function escapeHTML(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-
-/* =============================
-   INTERPRETER + DREAM ART (Cloudflare-backed)
-   ============================= */
-
-// Tabs support (if present on page)
-const setActiveTab = (name) => {
-  $$('.tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === name));
-  $$('.panel').forEach(p => p.classList.toggle('is-active', p.id === `pane-${name}`));
-};
-$$('.tab').forEach(btn => btn.addEventListener('click', () => setActiveTab(btn.dataset.tab)));
-
-function showTextPanels(obj){
-  const put = (id, html) => { const n = document.getElementById(id); if (n) n.innerHTML = html; };
-  put('pane-scientific', obj.scientific || '—');
-  put('pane-psychological', obj.psychological || '—');
-  put('pane-spiritual', obj.spiritual || '—');
-  setActiveTab('scientific');
+function updateUsageUI(){
+  const u=usage(), lim=ENTITLEMENTS[plan()].daily;
+  const boxes=$$('.stat-box p');
+  if(boxes[0]) boxes[0].textContent = `${u.interpret||0} / ${lim.interpret===Infinity?'∞':lim.interpret}`;
+  if(boxes[1]) boxes[1].textContent = `${u.art||0} / ${lim.art===Infinity?'∞':lim.art}`;
+  $$('.plan-badge,[data-plan-badge]').forEach(el=>el.textContent=ENTITLEMENTS[plan()].label);
 }
 
-// Dream art preview (data URL)
-function showImage(dataUrl){
-  const wrap = $('#imageWrap'); if (!wrap) return;
-  wrap.innerHTML = '';
-  const img = new Image(); img.src = dataUrl; img.alt = 'Dream Art'; wrap.appendChild(img);
-  const dl = $('#downloadBtn');
-  if (dl){
-    dl.disabled = false;
-    dl.onclick = () => { const a=document.createElement('a'); a.href=dataUrl; a.download='dream-art.png'; a.click(); };
+// =====================
+// Interpreter (demo) & API calls
+// =====================
+function interpretDemo(text){
+  const motifs=[], add=(re,t)=>re.test(text)&&motifs.push(t);
+  add(/\bfly|float|sky|airplane|plane|crash|fall/i,'flight');
+  add(/\bwater|ocean|sea|wave|rain|river/i,'water');
+  add(/\bteeth|tooth|dentist/i,'teeth');
+  add(/\bchase|run|escape/i,'chase');
+
+  const out=[];
+  if(motifs.includes('flight')) out.push('Vestibular sensations in REM can feel like falling or flying — your brain rehearses loss-of-control safely.');
+  if(motifs.includes('water')) out.push('Water often mirrors body-state and big emotions during REM.');
+  if(motifs.includes('teeth')) out.push('Teeth images can reflect jaw tension or control/appearance concerns.');
+  if(motifs.includes('chase')) out.push('Threat-simulation: your brain practices boundaries & avoidance.');
+  if(!out.length) out.push('Dreams blend memory, emotion regulation, and REM physiology.');
+
+  return {
+    scientific:`<p>${out.join(' ')}</p>`,
+    psychological:`<p>Look for a real-life parallel. What felt out of control? Pick one 5-minute action that reduces stress.</p>`,
+    spiritual:`<p>Treat this as a nudge to ground yourself. Write one-sentence intention for tomorrow morning.</p>`
+  };
+}
+
+// Call your backend if available; otherwise fallback to demo.
+async function callInterpretAPI(text){
+  try{
+    const r = await fetch('/api/interpret',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    if(j && (j.scientific||j.psychological||j.spiritual)) return j;
+    throw 0;
+  }catch{ return interpretDemo(text); }
+}
+
+async function callImageAPI(prompt){
+  try{
+    const r = await fetch('/api/generate-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    if(j?.image){ return j.image; }
+    throw 0;
+  }catch{
+    // SVG fallback demo
+    const n=Math.max(1,Math.min(99,prompt.length%100));
+    const svg = `
+      <svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'>
+        <defs>
+          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0' stop-color='#121c3b'/><stop offset='1' stop-color='#7aa8ff'/>
+          </linearGradient>
+          <filter id='glow'><feGaussianBlur stdDeviation='8' result='b'/><feMerge><feMergeNode in='b'/><feMergeNode in='SourceGraphic'/></feMerge></filter>
+        </defs>
+        <rect fill='url(#g)' width='100%' height='100%'/>
+        <g filter='url(#glow)' opacity='0.85'>
+          <circle cx='${200 + n*7}' cy='${160 + n*4}' r='${120 + n}' fill='#a7c4ff'/>
+          <circle cx='${760 - n*3}' cy='${380 - n*2}' r='${90 + n/2}' fill='#7aa8ff'/>
+        </g>
+        <text x='50%' y='92%' fill='#e9f0ff' font-family='ui-sans-serif, system-ui' font-size='28' text-anchor='middle'>Dream Art (demo)</text>
+      </svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   }
 }
+
+// =====================
+// Renderers (index + dashboard compatible)
+// =====================
+function showInterpretation(obj){
+  const simple = $('#interpretationText'); // your index.html has this
+  if(simple){
+    const html = `
+      <div class="mt small"><strong>Scientific</strong>${obj.scientific||''}</div>
+      <div class="mt small"><strong>Psychological</strong>${obj.psychological||''}</div>
+      <div class="mt small"><strong>Spiritual</strong>${obj.spiritual||''}</div>`;
+    simple.innerHTML = html;
+    return;
+  }
+  // Optional 3-panel layout
+  const put = (id, html) => { const n = $('#'+id); if(n) n.innerHTML = html; };
+  put('pane-scientific', obj.scientific||'—');
+  put('pane-psychological', obj.psychological||'—');
+  put('pane-spiritual', obj.spiritual||'—');
+}
+
+function showImage(dataUrl){
+  const wrap = $('#imageWrap') || $('#artResult');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  const img=new Image(); img.src=dataUrl; img.alt='Dream Art'; img.style.maxWidth='100%'; img.onload=()=>{};
+  wrap.appendChild(img);
+  ( $('#downloadBtn') || $('#downloadArtBtn') )?.removeAttribute('disabled');
+  const dl = $('#downloadBtn') || $('#downloadArtBtn');
+  if(dl){ dl.onclick = ()=>{ const a=document.createElement('a'); a.href=dataUrl; a.download='dream-art.png'; a.click(); }; }
+}
 function clearImage(){
-  const wrap = $('#imageWrap');
-  if (wrap) wrap.innerHTML = '<div class="image-empty">No image yet. Click <em>Generate Dream Art</em>.</div>';
-  const dl = $('#downloadBtn'); if (dl) dl.disabled = true;
+  const wrap = $('#imageWrap') || $('#artResult');
+  if(wrap) wrap.innerHTML = 'No image yet. Click <strong>Generate Dream Art</strong>.';
+  ( $('#downloadBtn') || $('#downloadArtBtn') )?.setAttribute('disabled','disabled');
 }
 
-// Hook homepage controls (now call your API routes)
-const interpretBtn = $('#interpretBtn');
-if (interpretBtn){
-  interpretBtn.addEventListener('click', async ()=>{
-    const text = ($('#dreamInput')?.value || '').trim();
-    if (!text) return alert('Please describe your dream first.');
+// =====================
+// Wire: NAV + footer year
+// =====================
+$('#year') && ($('#year').textContent = new Date().getFullYear());
+$('#hamburger')?.addEventListener('click',()=>document.body.classList.toggle('nav-open'));
 
-    try{
-      const r = await fetch('/api/interpret', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-      if (!r.ok) throw new Error('Server error');
-      const out = await r.json(); // { scientific, psychological, spiritual }
-      showTextPanels({
-        scientific: `<p>${out.scientific || ''}</p>`,
-        psychological: `<p>${out.psychological || ''}</p>`,
-        spiritual: `<p>${out.spiritual || ''}</p>`
-      });
-    }catch(e){
-      console.error(e);
-      alert('Sorry, interpretation failed. Please try again.');
-    }
+// =====================
+// Wire: Index (home) page
+// =====================
+(function wireHome(){
+  const dream = $('#dreamInput'); if(!dream) return; // only on index
+  const interpretBtn = $('#interpretBtn');
+  const imageBtn = $('#imageBtn') || $('#generateArtBtn');
+  const clearBtn = $('#clearBtn') || $('#clearArtBtn');
+
+  interpretBtn?.addEventListener('click', async ()=>{
+    const text = dream.value.trim();
+    if(!text) return alert('Please describe your dream first.');
+    if(!hasQuota('interpret')) return alert(`Limit reached: ${ENTITLEMENTS[plan()].label} plan.`);
+    const out = await callInterpretAPI(text);
+    showInterpretation(out);
+    bump('interpret');
   });
-}
 
-const imageBtn = $('#imageBtn');
-if (imageBtn){
-  imageBtn.addEventListener('click', async ()=>{
-    const text = ($('#dreamInput')?.value || '').trim();
-    if (!text) return alert('Please describe your dream first.');
-
-    try{
-      const r = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-      if (!r.ok) throw new Error('Server error');
-      const data = await r.json(); // { imageDataUrl }
-      if (!data.imageDataUrl) throw new Error('No image');
-      showImage(data.imageDataUrl);
-    }catch(e){
-      console.error(e);
-      alert('Sorry, image generation failed. Please try again.');
-    }
+  imageBtn?.addEventListener('click', async ()=>{
+    const text = dream.value.trim();
+    if(!text) return alert('Please describe your dream first.');
+    if(!hasQuota('art')) return alert(`Limit reached: ${ENTITLEMENTS[plan()].label} plan.`);
+    const url = await callImageAPI(text);
+    showImage(url);
+    bump('art');
   });
-}
 
-const clearBtn = $('#clearBtn');
-if (clearBtn) clearBtn.addEventListener('click', clearImage);
-
-// Init default state for art box if it's on the page
-clearImage();
-
-// === Pro Account Menu (global) ===
-
-// Helper: read auth user from localStorage or window (fallbacks)
-function adtGetUser() {
-  const name = localStorage.getItem('adt_user_name') || (window._authUser && window._authUser.displayName) || null;
-  const email = localStorage.getItem('adt_user_email') || (window._authUser && window._authUser.email) || null;
-  return (email ? { name: name || (email.split('@')[0].toUpperCase()), email } : null);
-}
-
-// Helper: theme
-function adtApplyTheme(mode) {
-  // mode: 'system' | 'light' | 'dark'
-  localStorage.setItem('adt_theme', mode);
-  document.documentElement.dataset.theme = mode;
-}
-(function initThemeFromStore(){
-  const mode = localStorage.getItem('adt_theme') || 'dark';
-  adtApplyTheme(mode);
+  clearBtn?.addEventListener('click', clearImage);
+  clearImage(); // initial state
 })();
 
-(function mountAccountMenu(){
-  const navLinks = document.querySelector('.nav .nav-links');
-  if (!navLinks) return;
-
-  const user = adtGetUser();
-  if (!user) return; // keep Sign in / Sign up
-
-  // Remove auth links if present
-  [...navLinks.querySelectorAll('a[href*="signin"], a[href*="signup"]')].forEach(a => a.remove());
-
-  // Create the button + menu
-  const wrap = document.createElement('div');
-  wrap.className = 'account-wrap';
-
-  wrap.innerHTML = `
-    <div class="account-btn" id="accBtn">
-      <div class="avatar" id="accAvatar"></div>
-      <span id="accName" style="font-weight:700">${(user.name || 'ACCOUNT').toUpperCase()}</span>
-      <span class="dot"></span>
-    </div>
-    <div class="account-menu" id="accMenu" role="menu" aria-hidden="true">
-      <div class="acc-header">
-        <div class="name" id="accHeaderName">${(user.name || 'USER').toUpperCase()}</div>
-        <div class="email" id="accHeaderEmail">${user.email}</div>
-      </div>
-
-      <div class="acc-item" id="accTheme"> <span>🌐 Theme</span> <span class="acc-right">›</span> </div>
-      <div class="acc-item" id="accManage"> <span>⚙️ Manage account</span> <span class="acc-right">settings</span> </div>
-      <div class="acc-item" id="accPricing"> <span>⚡ Pricing</span> <span class="acc-right">plans</span> </div>
-      <div class="acc-item" id="accContact"> <span>✉️ Contact us</span> <span class="acc-right">support</span> </div>
-      <div class="acc-item" id="accTerms"> <span>📄 Terms & Conditions</span> <span class="acc-right">legal</span> </div>
-      <div style="border-top:1px solid rgba(255,255,255,.06); margin:6px 0"></div>
-      <div class="acc-item" id="accLogout"> <span>↪ Log out</span></div>
-
-      <div class="acc-sub" id="accThemeSub">
-        <div class="acc-radio" data-theme="system"><span class="tick"></span><span>System</span></div>
-        <div class="acc-radio" data-theme="light"><span class="tick"></span><span>Light</span></div>
-        <div class="acc-radio" data-theme="dark"><span class="tick"></span><span>Dark</span></div>
-      </div>
-    </div>
-  `;
-  navLinks.appendChild(wrap);
-
-  // Avatar initial (simple letter)
-  const av = wrap.querySelector('#accAvatar');
-  const letter = (user.name || user.email || 'U').trim().charAt(0).toUpperCase();
-  av.textContent = letter;
-  av.style.display = 'grid'; av.style.placeItems = 'center'; av.style.fontWeight = '800'; av.style.color = '#cfe2ff';
-
-  // Open/close
-  const btn = wrap.querySelector('#accBtn');
-  const menu = wrap.querySelector('#accMenu');
-  const themeItem = wrap.querySelector('#accTheme');
-  const themeSub = wrap.querySelector('#accThemeSub');
-
-  const closeMenus = () => { menu.classList.remove('open'); themeSub.classList.remove('open'); };
-  btn.addEventListener('click', (e)=>{ e.stopPropagation(); menu.classList.toggle('open'); });
-  document.addEventListener('click', closeMenus);
-
-  themeItem.addEventListener('mouseenter', ()=> themeSub.classList.add('open'));
-  themeItem.addEventListener('mouseleave', ()=> themeSub.classList.remove('open'));
-  themeSub.addEventListener('mouseenter', ()=> themeSub.classList.add('open'));
-  themeSub.addEventListener('mouseleave', ()=> themeSub.classList.remove('open'));
-
-  // Theme radio state
-  const currentTheme = localStorage.getItem('adt_theme') || 'dark';
-  themeSub.querySelectorAll('.acc-radio').forEach(el=>{
-    if (el.dataset.theme === currentTheme) el.classList.add('active');
-    el.addEventListener('click', ()=>{
-      themeSub.querySelectorAll('.acc-radio').forEach(r=>r.classList.remove('active'));
-      el.classList.add('active');
-      adtApplyTheme(el.dataset.theme);
-    });
+// =====================
+// Wire: Dashboard page
+// =====================
+(function wireDashboard(){
+  const txt = $('#dreamText') || $('#quickStart textarea');
+  if(!txt) return; // not on dashboard
+  // save
+  const saveBtn = $('#saveDreamBtn') || $$('button').find(b=>/^\s*save\s*$/i.test(b.textContent));
+  saveBtn?.addEventListener('click', ()=>{
+    const t = (txt.value||'').trim();
+    if(!t) return alert('Please write something first.');
+    addDream(t); txt.value='';
+    renderJournal(); renderStats();
+    alert('Saved!');
+  });
+  // interpret+art
+  const goBtn = $('#interpretBtn2') || $$('button').find(b=>/interpret\s*&?\s*art/i.test(b.textContent));
+  goBtn?.addEventListener('click', async ()=>{
+    const t=(txt.value||'').trim(); if(!t) return alert('Please describe your dream first.');
+    if(!hasQuota('interpret')) return alert(`Limit reached: ${ENTITLEMENTS[plan()].label} plan.`);
+    const out = await callInterpretAPI(t); alert('Interpretation ready on Home.\n(Scroll up on Home to see it.)');
+    // Save to local and also to show on home after redirect if you want
+    addDream(t); renderJournal(); renderStats(); bump('interpret');
+    location.href = '/index.html#interpreter';
   });
 
-  // Routes
-  wrap.querySelector('#accManage').addEventListener('click', ()=> location.href='/settings.html');
-  wrap.querySelector('#accPricing').addEventListener('click', ()=> location.href='/pricing.html');
-  wrap.querySelector('#accContact').addEventListener('click', ()=> location.href='/contact.html');
-  wrap.querySelector('#accTerms').addEventListener('click', ()=> location.href='/terms.html');
+  // share last
+  $('#shareLastBtn')?.addEventListener('click', async ()=>{
+    const last=getDreams()[0]; if(!last) return alert('No entries yet.');
+    const text = `My dream (${last.date.slice(0,10)}): ${last.text}`;
+    if(navigator.share) await navigator.share({title:'Dream Journal', text}); else { await navigator.clipboard.writeText(text); alert('Copied to clipboard'); }
+  });
 
-  // Logout
-  const doSignOut = async () => {
-    const existing = document.getElementById('signOutBtn');
-    if (existing) { existing.click(); return; }
-    localStorage.removeItem('adt_user_name');
-    localStorage.removeItem('adt_user_email');
-    localStorage.removeItem('adt_tier');
-    location.href = '/signin.html';
-  };
-  wrap.querySelector('#accLogout').addEventListener('click', doSignOut);
+  // clear all
+  $('#clearAllBtn')?.addEventListener('click', ()=>{
+    if(confirm('Delete ALL local dreams?')){ setDreams([]); renderJournal(); renderStats(); }
+  });
 
+  // quick actions (dashboard)
+  $('#exportDataBtn')?.addEventListener('click', ()=>{
+    const blob=new Blob([JSON.stringify({dreams:getDreams()},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`dream-journal-${todayISO()}.json`; a.click(); URL.revokeObjectURL(url);
+  });
+  $('#importDataInput')?.addEventListener('change', async (e)=>{
+    const f=e.target.files?.[0]; if(!f) return; try{ const j=JSON.parse(await f.text()); if(Array.isArray(j.dreams)) setDreams(j.dreams); renderJournal(); renderStats(); alert('Imported.'); }catch{ alert('Invalid file.'); }
+  });
+  $('#deleteLocalBtn')?.addEventListener('click', ()=>{
+    if(confirm('Delete all local data?')){ localStorage.removeItem(LS.dreams); localStorage.removeItem(LS.usage); renderJournal(); renderStats(); }
+  });
+
+  renderJournal(); renderStats(); updateUsageUI();
 })();
 
-/* =============================
-   PLAN / USAGE — FULL ENTITLEMENTS (FREE/LITE/STANDARD/PRO)
-   (unchanged from your last version)
-   ============================= */
-
-const ENTITLEMENTS = {
-  free: { label:"Free", daily:{ interpret:2, art:1 }, lensesUnlocked:["psychological"],
-    features:{ export:false,tags:false,historySearch:false,weeklyInsights:false,commercial:false,priority:"none",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:false,teamSeats:0 } },
-  lite: { label:"Lite", daily:{ interpret:8, art:3 }, lensesUnlocked:["psychological","symbolic"],
-    features:{ export:true,tags:true,historySearch:false,weeklyInsights:false,commercial:"lite",priority:"lite",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:false,teamSeats:0 } },
-  standard: { label:"Standard", daily:{ interpret:Infinity, art:10 }, lensesUnlocked:["psychological","symbolic","cultural","spiritual"],
-    features:{ export:true,tags:true,historySearch:true,weeklyInsights:true,commercial:true,priority:"std",hdArt:false,voiceToDream:false,customPrompts:false,multilingual:false,earlyAccess:true,teamSeats:0 } },
-  pro: { label:"Pro", daily:{ interpret:Infinity, art:150 }, lensesUnlocked:["psychological","symbolic","cultural","spiritual"],
-    features:{ export:true,tags:true,historySearch:true,weeklyInsights:true,commercial:true,priority:"max",hdArt:true,voiceToDream:true,customPrompts:true,multilingual:true,earlyAccess:true,teamSeats:2 } },
-};
-
-const USAGE_KEY = "adt_usage";
-const PLAN_KEY  = "adt_plan";
-(function planFromQuery(){ const p=new URLSearchParams(location.search).get("plan"); if (p && ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY,p); })();
-function dayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
-function getPlan(){ return localStorage.getItem(PLAN_KEY) || "free"; }
-function setPlan(p){ if (ENTITLEMENTS[p]) localStorage.setItem(PLAN_KEY,p); }
-function getUsage(){ const raw=localStorage.getItem(USAGE_KEY); const today=dayKey(); if(!raw) return {date:today,interpret:0,art:0}; try{const u=JSON.parse(raw); return (u.date===today)?u:{date:today,interpret:0,art:0};}catch{return {date:today,interpret:0,art:0};}}
-function saveUsage(u){ localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
-function currentLimits(){ return ENTITLEMENTS[getPlan()]?.daily || { interpret:0, art:0 }; }
-function hasQuota(action){ const lim=currentLimits(); const u=getUsage(); const used=u[action]||0; const max=lim[action]; return (max===Infinity)||(used<max); }
-function requireQuota(action){ const plan=getPlan(); if (hasQuota(action)) return true; const lim=currentLimits()[action]; const msg = action==="interpret" ? `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim===Infinity?'unlimited':lim} interpretations/day.` : `Limit reached: ${ENTITLEMENTS[plan].label} allows ${lim===Infinity?'unlimited':lim} dream-art/day.`; alert(msg + "\nVisit Pricing to upgrade."); return false; }
-function recordUsage(action){ const u=getUsage(); u[action]=(u[action]||0)+1; saveUsage(u); updateUsageUI(); }
-function updateUsageUI(){ const plan=getPlan(); const u=getUsage(); const lim=currentLimits(); const boxes=document.querySelectorAll(".stat-box p"); if (boxes[0]) boxes[0].textContent=`${u.interpret||0} / ${lim.interpret===Infinity?"∞":lim.interpret}`; if (boxes[1]) boxes[1].textContent=`${u.art||0} / ${lim.art===Infinity?"∞":lim.art}`; document.querySelectorAll("[data-plan-badge]").forEach(el=> el.textContent = ENTITLEMENTS[plan].label ); }
-function applyFeatureLocks(){ const plan=getPlan(); const cfg=ENTITLEMENTS[plan]; document.querySelectorAll("[data-feature]").forEach(el=>{ const key=el.getAttribute("data-feature"); const val=cfg.features[key]; const allowed=(val===true)||(typeof val==="string")||(typeof val==="number" && val>0); el.classList.toggle("locked", !allowed); el.toggleAttribute("aria-disabled", !allowed); if (!allowed){ el.addEventListener("click",(e)=>{e.preventDefault(); alert("Upgrade to unlock this feature.");},{once:true}); }}); const allowedLenses=new Set(cfg.lensesUnlocked.map(s=>s.toLowerCase())); document.querySelectorAll("[data-lens]").forEach(el=>{ const lens=(el.getAttribute("data-lens")||"").toLowerCase(); const ok=allowedLenses.has(lens); el.classList.toggle("locked", !ok); el.toggleAttribute("aria-disabled", !ok); if (!ok){ el.addEventListener("click",(e)=>{e.preventDefault(); alert("Upgrade to unlock this lens.");},{once:true}); }}); }
-(function wireHdArt(){ const t=document.getElementById("hdArtToggle"); if(!t) return; const plan=getPlan(); const allowed=!!ENTITLEMENTS[plan].features.hdArt; t.checked=allowed; t.disabled=!allowed; })();
-function wireGuardsV2(){ const interpretTargets=[document.getElementById("interpretBtn"),document.getElementById("interpretBtn2")].filter(Boolean); interpretTargets.forEach(btn=>{ btn.addEventListener("click",(e)=>{ if(!requireQuota("interpret")) { e.stopImmediatePropagation(); e.preventDefault(); return; } setTimeout(()=>recordUsage("interpret"),0); }, true);}); const artTargets=[document.getElementById("imageBtn"),document.getElementById("generateBtn")].filter(Boolean); artTargets.forEach(btn=>{ btn.addEventListener("click",(e)=>{ if(!requireQuota("art")) { e.stopImmediatePropagation(); e.preventDefault(); return; } setTimeout(()=>recordUsage("art"),0); }, true);}); }
-window.setPlanForTesting=function(p){ if(!ENTITLEMENTS[p]) return alert("Unknown plan: "+p); setPlan(p); updateUsageUI(); applyFeatureLocks(); alert("Plan set to: "+ENTITLEMENTS[p].label); };
-(function initPlans(){ if(!localStorage.getItem(PLAN_KEY)) setPlan("free"); updateUsageUI(); applyFeatureLocks(); wireGuardsV2(); const now=new Date(); const midnight=new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0,0,1); setTimeout(()=>{ saveUsage({date:dayKey(), interpret:0, art:0}); updateUsageUI(); }, midnight-now); })();
+// =====================
+// Midnight reset
+// =====================
+(function midnightReset(){
+  const now=new Date(); const midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,1);
+  setTimeout(()=>{ saveUsage({date:dayKey(), interpret:0, art:0}); updateUsageUI(); }, midnight-now);
+})();
+</script>
