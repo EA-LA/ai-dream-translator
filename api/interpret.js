@@ -1,7 +1,6 @@
 // /api/interpret.js
-// POST { text: "your dream..." } -> { scientific, psychological, spiritual }
-// Falls back to a short demo response if OPENAI_API_KEY is not set.
-
+// POST { text: string }
+// Returns: { scientific, psychological, spiritual }
 export default async function handler(req, res) {
   // CORS + preflight
   if (req.method === 'OPTIONS') {
@@ -13,68 +12,69 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'POST only' });
+    return res.status(405).json({ error: 'Use POST' });
   }
 
   try {
     const body = await readJSON(req);
     const text = (body?.text || '').trim();
-    if (!text) return res.status(400).json({ error: 'Missing "text"' });
+    if (!text) return res.status(400).json({ error: 'Missing "text".' });
 
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) {
-      // demo response if no key configured
-      return res.status(200).json({
-        scientific:
-          'Dreams combine REM physiology with memory consolidation; themes often echo recent stressors.',
-        psychological:
-          'Notice what the situation mirrors in waking life. Choose one small action to regain agency.',
-        spiritual:
-          'Treat this as a gentle nudge to act with courage and clarity today.'
-      });
-    }
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'OPENAI_API_KEY missing' });
+
+    const prompt = `
+You are a concise dream analyst. Given a user's dream, return JSON with 3 keys:
+- scientific: 1–2 sentences grounded in sleep science/REM.
+- psychological: 1–2 sentences with practical reflection prompts.
+- spiritual: 1 sentence on gentle meaning and symbols.
+Keep each value plain text (no quotes inside), and do not add any extra keys.
+
+User dream: """${text}"""
+`.trim();
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o-mini', // small + cheap, good quality
         messages: [
-          {
-            role: 'system',
-            content:
-              'Return JSON ONLY with keys {scientific, psychological, spiritual}. Each key: 2–4 concise sentences. No markdown.'
-          },
-          { role: 'user', content: `Analyze this dream:\n\n${text}` }
+          { role: 'system', content: 'You are concise and helpful. Output valid JSON only.' },
+          { role: 'user', content: prompt }
         ],
-        response_format: { type: 'json_object' },
-        temperature: 0.8
+        temperature: 0.6
       })
     });
 
     if (!r.ok) {
       const err = await r.text();
+      console.error('openai interpret error:', err);
       return res.status(502).json({ error: 'openai-failed', detail: err });
     }
 
-    const j = await r.json();
-    let out = {};
-    try { out = JSON.parse(j?.choices?.[0]?.message?.content || '{}'); } catch {}
+    const data = await r.json();
+    const raw = data?.choices?.[0]?.message?.content || '{}';
 
-    return res.status(200).json({
-      scientific: out.scientific || '',
-      psychological: out.psychological || '',
-      spiritual: out.spiritual || ''
-    });
+    // Make sure we return a clean object with our 3 keys.
+    let out = { scientific: '', psychological: '', spiritual: '' };
+    try {
+      const j = JSON.parse(raw);
+      out.scientific = (j.scientific || '').toString();
+      out.psychological = (j.psychological || '').toString();
+      out.spiritual = (j.spiritual || '').toString();
+    } catch {
+      // fallback: dump everything into scientific
+      out.scientific = raw;
+    }
+
+    return res.status(200).json(out);
   } catch (e) {
-    return res.status(500).json({ error: 'interpret-failed', detail: String(e?.message || e) });
+    console.error(e);
+    return res.status(500).json({ error: 'interpret-failed' });
   }
 }
 
-function readJSON(req) {
+function readJSON(req){
   return new Promise((resolve, reject) => {
     let d = '';
     req.on('data', c => (d += c));
